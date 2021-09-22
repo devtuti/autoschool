@@ -9,7 +9,22 @@
         <li class="nav-item">
           <a class="nav-link {{Route::is('about') ? 'active' : ''}}"  href="{{route('about')}}">About</a>
         </li>
-        
+        @guest
+        <li class="nav-item">
+          <a class="nav-link {{Route::is('login') ? 'active' : ''}}"  href="{{route('login')}}">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{Route::is('register') ? 'active' : ''}}"  href="{{route('register')}}">Register</a>
+        </li>
+        @else
+        <li class="nav-item">
+          <a class="nav-link"  href="javascript:void(0)">{{auth()->user()->name}}</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {{Route::is('logout') ? 'active' : ''}}"  href="{{route('logout')}}">Logout</a>
+        </li>
+        @endguest
         
       </ul>
     </div>
