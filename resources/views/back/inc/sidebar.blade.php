@@ -15,15 +15,23 @@
               <p>Dashboard</p>
             </a>
           </li>
-          <li class="nav-item {{Route::is('cat') ? 'active' : ''}}">
-            <a class="nav-link" href="{{route('cat')}}">
-              <i class="material-icons">library_books</i>
-              <p>Category</p>
-            </a>
-          </li>
           
+          
+ 
+          <li class="nav-item dropdown ">
+          <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false"><i class="material-icons">content_copy</i>System</a>
+          
+          <div class="dropdown-menu">
+            <a class="dropdown-item  {{Route::is('cat') ? 'active' : ''}}" href="{{route('cat')}}">Textbook Category</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Separated link</a>
+          </div>
+        </li>
+      </ul>
         
-        </ul>
+        
       </div>
     </div>
     

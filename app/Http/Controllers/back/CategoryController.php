@@ -26,15 +26,46 @@ class CategoryController extends Controller
 
     public function categories(){
         $categories= Category::with('children')->get();
-        return view('back.cat_list',compact('categories'));
+        return view('back.system.cat_list',compact('categories'));
     }
 
     public function category_add(){
         $categories = DB::table('categories')->where('sub_id',0)->get();
-        return view('back.cat_insert', compact('categories'));
+        return view('back.system.cat_insert', compact('categories'));
     }
 
     public function category_post(Request $request){
+        $validation = [
+            'cat_name'=> 'required',
+        ];
+        $rules = validator($request->all(), $validation,[
+            'min' => ':attribute sahesi minimum :min olmaldir'
+        ]);
+        if($rules->fails()){
+            return redirect()->back()->withErrors($rules)->withInput();
+        }else{
+            foreach($request->cat_name as $item=>$v){
+                $data=array(
+                    'cat_name'=>$request->cat_name[$item],
+                    'slug'=>Str::of($request->cat_name[$item])->slug('-'),
+                    'sub_id'=>$request->category[$item],
+                    'status'=>$request->status[$item],
+                    'created_at'=>now()
+                );
+                Category::insert($data);
+            }
+            return redirect()->route('cat');
+        }
+        
+    }
+
+    public function cat_edit($id){
+        $cats = DB::table('categories')->where('id',$id)->first();
+        $parent = DB::table('categories')->where('sub_id',0)->get();
+        return view('back.system.cat_edit', compact('cats', 'parent'));
+    }
+
+    public function cat_update(Request $request, $id){
         $validation = [
             'cat_name'=> 'required | min:5',
         ];
@@ -44,17 +75,16 @@ class CategoryController extends Controller
         if($rules->fails()){
             return redirect()->back()->withErrors($rules)->withInput();
         }else{
-            $insert=DB::table('categories')->insert([
+            $update=DB::table('categories')->where('id',$id)->update([
                 'cat_name'=>$request['cat_name'],
                 'slug'=>Str::of($request['cat_name'])->slug('-'),
                 'sub_id'=>$request['category'],
                 'status'=>$request['status'],
-                'created_at'=>now()
+                'updated_at'=>now()
             ]);
-            if($insert){
+            if($update){
                 return redirect()->route('cat');
             }
         }
-        
     }
 }

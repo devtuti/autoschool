@@ -30,14 +30,18 @@ Route::prefix('cms')->group(function () {
 
     //DAHBOARD
     Route::get('/', [AdminController::class, 'home'])->name('admin');
+    // SYSTEM DAHBOARD
+    Route::prefix('/system')->group(function () {
+        
 
-    //CATEGORY
-    Route::get('/category', [CategoryController::class, 'categories'])->name('cat');
-    Route::get('/add_category', [CategoryController::class, 'category_add'])->name('new_cat');
-    Route::post('/add_category', [CategoryController::class, 'category_post'])->name('post_cat');
-    Route::get('/category_edit/{id?}', [CategoryController::class, 'cat_edit'])->name('cat_edit');
-    Route::post('/category_edit/{id?}', [CategoryController::class, 'cat_update'])->name('cat_edit_post');
-    Route::get('/category_delete/{id?}', [CategoryController::class, 'cat_delete'])->name('cat_delete');
+        //CATEGORY
+        Route::get('/category', [CategoryController::class, 'categories'])->name('cat');
+        Route::get('/add_category', [CategoryController::class, 'category_add'])->name('new_cat');
+        Route::post('/add_category', [CategoryController::class, 'category_post'])->name('post_cat');
+        Route::get('/category_edit/{id?}', [CategoryController::class, 'cat_edit'])->name('cat_edit');
+        Route::post('/category_edit/{id?}', [CategoryController::class, 'cat_update'])->name('cat_edit_post');
+        Route::get('/category_delete/{id?}', [CategoryController::class, 'cat_delete'])->name('cat_delete');
+    });
 });
 
 
