@@ -19,6 +19,7 @@ class Categories extends Migration
             $table->string('slug', 155);
             $table->unsignedBigInteger('sub_id')->nullable();
             $table->enum('status', [0, 1]);
+            $table->softDeletes();
             $table->timestamps();
 
             /*$table->foreign('sub_id')

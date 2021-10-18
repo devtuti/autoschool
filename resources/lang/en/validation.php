@@ -149,6 +149,9 @@ return [
 
     'attributes' => [
         'cat_name' => 'Category',
+        'lesson_name' => 'Lesson',
+        'con_text' => 'Content Text',
+        'q_name' => 'Question',
     ],
 
 ];

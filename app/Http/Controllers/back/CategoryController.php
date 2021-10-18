@@ -25,7 +25,7 @@ class CategoryController extends Controller
     }
 
     public function categories(){
-        $categories= Category::with('children')->get();
+        $categories= Category::with('children')->paginate(10);
         return view('back.system.cat_list',compact('categories'));
     }
 
@@ -87,4 +87,37 @@ class CategoryController extends Controller
             }
         }
     }
+
+    public function cat_delete($id){
+        Category::find($id)->delete();
+        return redirect()->back();
+    }
+
+    public function cat_trashed(){
+        $categories = Category::onlyTrashed()->with('children')->paginate(10); 
+        return view('back.system.cat_trashed', compact('categories'));
+    }
+
+    public function cat_restore($id){
+        Category::onlyTrashed()->find($id)->restore();
+        return redirect()->back();
+    }
+
+    public function cat_destroy($id){
+        Category::onlyTrashed()->find($id)->forceDelete();
+        return redirect()->back();
+    }
+
+    public function cat_alldelete(Request $request){
+        $check = $request->cat_id;
+        Category::whereIn('id',$check)->delete();
+        return redirect()->back();
+    }
+
+    public function cat_trashed_delete(Request $request){
+        $check = $request->cat_id;
+        Category::onlyTrashed()->whereIn('id',$check)->forceDelete();
+        return redirect()->back();
+    }
+
 }

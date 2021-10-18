@@ -1,12 +1,12 @@
 @extends('layouts.back')
 @section('title')
-    Categories
+   Trashed Categories
 @endsection
 @section('css')
 @endsection
 
 @section('page_name')
-    Category list
+    Trashed Category list
 @endsection
 
 @section('content')
@@ -17,7 +17,7 @@
                 <div class="card-header card-header-primary">
                   <h4 class="card-title mt-0"> </h4>
                   <!--<p class="card-category"> </p>-->
-                  <form action="{{route('cat_all_delete')}}" method="post">
+                  <form action="{{route('cat_trashed_delete')}}" method="post">
                       @csrf
                       @method('DELETE')
                   <ul class="nav">
@@ -31,8 +31,8 @@
                       </a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="{{route('cat_trashed')}}" class="card-category">
-                        <i class="material-icons">delete</i>Deleted categories
+                      <a class="nav-link" href="{{route('cat')}}" class="card-category">
+                        All categories
                       </a>
                     </li>
                     
@@ -83,10 +83,10 @@
                           <td>{{$cat->created_at}}</td>
                           <td>{{$cat->updated_at}}</td>
                           <td>
-                            <a href="{{route('cat_edit', $cat->id)}}">
-                            <i class="material-icons">edit</i>
+                            <a href="{{route('cat_restore', $cat->id)}}">
+                            <i class="material-icons">settings_backup_restore</i>
                             </a>
-                            <a href="{{route('cat_delete', $cat->id)}}">
+                            <a href="{{route('cat_destroy', $cat->id)}}">
                               <i class="material-icons">auto_delete</i>
                             </a>
                           </td>

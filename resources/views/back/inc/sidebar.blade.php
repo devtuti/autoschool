@@ -23,8 +23,8 @@
           
           <div class="dropdown-menu">
             <a class="dropdown-item  {{Route::is('cat') ? 'active' : ''}}" href="{{route('cat')}}">Textbook Category</a>
-            <a class="dropdown-item" href="#">Another action</a>
-            <a class="dropdown-item" href="#">Something else here</a>
+            <a class="dropdown-item  {{Route::is('lesson') ? 'active' : ''}}" href="{{route('lesson')}}">Lessons</a>
+            <a class="dropdown-item  {{Route::is('test_question') ? 'active' : ''}}" href="{{route('test_question')}}">Tests</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#">Separated link</a>
           </div>
