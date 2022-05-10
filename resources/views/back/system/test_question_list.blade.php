@@ -30,13 +30,7 @@
                         <i class="material-icons">add</i>New test question
                       </a>
                     </li>
-                    @if(count($questions) > 0 )
-                    <li class="nav-item">
-                      <a class="nav-link" href="{{route('test_answers')}}" class="card-category">
-                        <i class="material-icons">view_agenda</i>Test answers
-                      </a>
-                    </li>
-                    @endif
+            
                     <li class="nav-item">
                       <a class="nav-link" href="{{route('test_question_trashed')}}" class="card-category">
                         <i class="material-icons">delete</i>Deleted questions
@@ -70,7 +64,7 @@
                                 @foreach($questions as $question)
                                 <tr>
                                 <td><input type="checkbox" name="question_id[]" value="{{$question->id}}"></td>
-                                <td>{{$question->id}}</td>
+                                <td>{{$question->t_q_id}}</td>
                                 <td>
                                     {{$question->cat_name}}
                                 </td>
@@ -85,10 +79,10 @@
                                 <td>{{$question->created_at}}</td>
                                 <td>{{$question->updated_at}}</td>
                                 <td>
-                                    <a href="{{route('test_question_edit', $question->id)}}">
+                                    <a href="{{route('test_question_edit', $question->t_q_id)}}">
                                     <i class="material-icons">edit</i>
                                     </a>
-                                    <a href="{{route('test_question_delete', $question->id)}}">
+                                    <a href="{{route('test_question_delete', $question->t_q_id)}}">
                                     <i class="material-icons">auto_delete</i>
                                     </a>
                                 </td>

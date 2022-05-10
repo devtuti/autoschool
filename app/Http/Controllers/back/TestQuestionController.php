@@ -7,11 +7,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\TestQuestion;
+use File;
 
 class TestQuestionController extends Controller
 {
+    public function __construct(){
+        
+        view()->share("grade_count", DB::table('admins')->where('grade', '=','0')->count());
+        view()->share("user_count", DB::table('users')->where('status', '=','0')->count());
+
+    }
     public function test_question(){
-        $questions= TestQuestion::paginate(10);
+        //$questions= TestQuestion::paginate(10);
+        $questions = DB::table('test_questions')
+                    ->join('categories', 'test_questions.cat_id', '=', 'categories.id')
+                    ->select('test_questions.*', 'categories.*', 'test_questions.id as t_q_id')
+                    ->paginate(10);
         return view('back.system.test_question_list',compact('questions'));
     }
 
@@ -23,7 +34,7 @@ class TestQuestionController extends Controller
     public function test_question_post(Request $request){
         $validation = [
             'q_name'=> 'required',
-            'con_text'=> 'required',
+            
         ];
         $rules = validator($request->all(), $validation,[
             'min' => ':attribute sahesi minimum :min olmaldir'
@@ -31,19 +42,46 @@ class TestQuestionController extends Controller
         if($rules->fails()){
             return redirect()->back()->withErrors($rules)->withInput();
         }else{
-            foreach($request->q_name as $item=>$v){
-                $data=array(
-                    'question_name'=>$request->q_name[$item],
-                    'slug'=>Str::of($request->q_name[$item])->slug('-'),
-                    'cat_id'=>$request->category[$item],
-                    'question'=>$request->con_text[$item],
-                    'bal'=>$request->bal[$item],
-                    'staus'=>$request->status[$item],
-                    'created_at'=>now()
-                );
-                TestQuestion::insert($data);
+            $categories = DB::table("categories")->get();
+            foreach($categories as $cat){
+                if($cat->status==1){
+                    if($request->hasFile('photo')){
+                        $file = $request->file('photo');
+                        $name = $file->getClientOriginalName();
+                        $name = time().'.'.$file->getClientOriginalName();
+                        
+                        $file->move(public_path().'/tests',$name);
+                       
+                        //foreach($request->q_name as $item=>$v){
+                            if(!empty($request->con_text)){
+                                $data=array(
+                                    'question_name'=>$request->q_name,
+                                    'slug'=>Str::of($request->q_name)->slug('-'),
+                                    'cat_id'=>$request->category,
+                                    'question'=>$request->con_text,
+                                    'correct_answer'=>$request->variant,
+                                    'staus'=>$request->status,
+                                    'photo'=>$name,
+                                    'created_at'=>now()
+                                );
+                            }else{
+                                $data=array(
+                                    'question_name'=>$request->q_name,
+                                    'slug'=>Str::of($request->q_name)->slug('-'),
+                                    'cat_id'=>$request->category,
+                                    'question'=>'',
+                                    'correct_answer'=>$request->variant,
+                                    'staus'=>$request->status,
+                                    'photo'=>$name,
+                                    'created_at'=>now()
+                                );
+                            }
+                            TestQuestion::insert($data);
+                        //}
+                    }
+                }else{return redirect()->route('new_test_question');}
             }
-            return redirect()->route('test_question');
+            
         }
         
     }
@@ -59,8 +97,7 @@ class TestQuestionController extends Controller
     public function test_question_update(Request $request, $id){
         $validation = [
             'q_name'=> 'required | min:5',
-            'con_text'=> 'required | min:5',
-
+            
         ];
         $rules = validator($request->all(), $validation,[
             'min' => ':attribute sahesi minimum :min olmaldir'
@@ -68,17 +105,44 @@ class TestQuestionController extends Controller
         if($rules->fails()){
             return redirect()->back()->withErrors($rules)->withInput();
         }else{
-            $update=DB::table('test_questions')->where('id',$id)->update([
-                'question_name'=>$request['q_name'],
-                'slug'=>Str::of($request['q_name'])->slug('-'),
-                'cat_id'=>$request['category'],
-                'bal'=>$request['bal'],
-                'staus'=>$request['status'],
-                'question'=>$request['con_text'],
-                'updated_at'=>now()
-            ]);
-            if($update){
-                return redirect()->route('test_question');
+            $photo = TestQuestion::findOrFail($id);
+            if(File::exists("lessons/".$photo->photo)){
+                File::delete("lessons/".$photo->photo);
+            }
+
+            if($request->hasFile('photo')){
+                $file = $request->file('photo');
+                
+                $name = $file->getClientOriginalName();
+                $name = time().'.'.$file->getClientOriginalName();
+
+                $file->move(public_path().'/lessons',$name);
+                if(!empty($request->con_text)){
+                    $update=DB::table('test_questions')->where('id',$id)->update([
+                        'question_name'=>$request['q_name'],
+                        'slug'=>Str::of($request['q_name'])->slug('-'),
+                        'cat_id'=>$request['category'],
+                        'staus'=>$request['status'],
+                        'question'=>$request['con_text'],
+                        'correct_answer'=>$request['variant'],
+                        'photo' =>$request['photo'],
+                        'updated_at'=>now()
+                    ]);
+                }else{
+                    $update=DB::table('test_questions')->where('id',$id)->update([
+                        'question_name'=>$request['q_name'],
+                        'slug'=>Str::of($request['q_name'])->slug('-'),
+                        'cat_id'=>$request['category'],
+                        'staus'=>$request['status'],
+                        'question'=>'',
+                        'correct_answer'=>$request['variant'],
+                        'photo' =>$request['photo'],
+                        'updated_at'=>now()
+                    ]);
+                }
+                if($update){
+                    return redirect()->route('test_question');
+                }
             }
         }
     }
@@ -102,7 +166,11 @@ class TestQuestionController extends Controller
     }
 
     public function test_question_destroy($id){
-        TestQuestion::onlyTrashed()->find($id)->forceDelete();
+        $photo = TestQuestion::onlyTrashed()->find($id);
+            if(File::exists("lessons/".$photo->photo)){
+                File::delete("lessons/".$photo->photo);
+            }
+        $photo->forceDelete();
         return redirect()->back();
     }
 
@@ -114,7 +182,14 @@ class TestQuestionController extends Controller
 
     public function test_question_trashed_delete(Request $request){
         $check = $request->question_id;
-        TestQuestion::onlyTrashed()->whereIn('id',$check)->forceDelete();
+        $ce = TestQuestion::onlyTrashed()->whereIn('id',$check);
+        foreach($ce as $c)
+            if(File::exists("lessons/".$c->photo)){
+                File::delete("lessons/".$c->photo);
+            }
+
+        $ce->forceDelete();
+        
         return redirect()->back();
     }
 }

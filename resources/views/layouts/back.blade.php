@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,13 +16,16 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
   <!-- CSS Files -->
   <link href="{{asset('../assets/css/material-dashboard.css?v=2.1.0')}}" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link href="{{asset('../assets/demo/demo.css')}}" rel="stylesheet" />
   @yield('css')
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </head>
 
 <body class="dark-edition">
     <div class="wrapper ">
+    @if(Auth::guard('admin')->user()->status==1 and Auth::guard('admin')->user()->grade>0)
     @include('back.inc.sidebar')
     <div class="main-panel">
       <!-- Navbar -->
@@ -102,6 +106,11 @@
         </li>
       </ul>
     </div>
+    @elseif(Auth::guard('admin')->user()->status==0)
+      <h1><i>{{Auth::guard('admin')->user()->name_familya}}</i> siz artiq sistemden istifade ede bilmersiniz</h1>
+    @else
+      <h1><i>{{Auth::guard('admin')->user()->name_familya}}</i> sizi biraz gozledeceyik</h1>
+    @endif
   </div>
   <!--   Core JS Files   -->
   <script src="{{asset('../assets/js/core/jquery.min.js')}}"></script>
@@ -293,6 +302,7 @@
 @yield('js')
 </body>
 </html>
+
 
 
   

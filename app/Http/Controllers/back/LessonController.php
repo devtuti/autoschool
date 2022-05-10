@@ -11,8 +11,18 @@ use File;
 
 class LessonController extends Controller
 {
+    public function __construct(){
+        
+        view()->share("grade_count", DB::table('admins')->where('grade', '=','0')->count());
+        view()->share("user_count", DB::table('users')->where('status', '=','0')->count());
+
+    }
     public function lessons(){
-        $lessons= Lesson::paginate(10);
+        //$lessons= Lesson::paginate(10);
+        $lessons = DB::table('lessons')
+                    ->join('categories', 'lessons.cat_id', '=', 'categories.id')
+                    ->select('lessons.*', 'categories.*', 'lessons.id as l_id')
+                    ->paginate(10);
         return view('back.system.lesson',compact('lessons'));
     }
 
@@ -24,7 +34,7 @@ class LessonController extends Controller
     public function lesson_post(Request $request){
         $validation = [
             'lesson_name'=> 'required',
-            'con_text' => 'required',
+            
         ];
         $rules = validator($request->all(), $validation,[
             'min' => ':attribute sahesi minimum :min olmaldir'
@@ -32,25 +42,43 @@ class LessonController extends Controller
         if($rules->fails()){
             return redirect()->back()->withErrors($rules)->withInput();
         }else{
-            if($request->hasFile('photo')){
-                $file = $request->file('photo');
-                $name = $file->getClientOriginalName();
-                $name = time().'.'.$file->getClientOriginalName();
-                
-                $file->move(public_path().'/lessons',$name);
-               
-                $data=array(
-                    'lesson_name'=>$request->lesson_name,
-                    'slug'=>Str::of($request->lesson_name)->slug('-'),
-                    'cat_id'=>$request->category,
-                    'status'=>$request->status,
-                    'content_text'=>$request->con_text,
-                    'photo'=>$name,
-                    'created_at'=>now()
-                ); //dd($data);
-                Lesson::insert($data);
-                return redirect()->route('lesson');
+            $categories = DB::table("categories")->get();
+            foreach($categories as $cat){
+                if($cat->status==1){
+                    if($request->hasFile('photo')){
+                        $file = $request->file('photo');
+                        $name = $file->getClientOriginalName();
+                        $name = time().'.'.$file->getClientOriginalName();
+                        
+                        $file->move(public_path().'/lessons',$name);
+                        if(!empty($request->con_text)){
+                       
+                            $data=array(
+                                'lesson_name'=>$request->lesson_name,
+                                'slug'=>Str::of($request->lesson_name)->slug('-'),
+                                'cat_id'=>$request->category,
+                                'status'=>$request->status,
+                                'content_text'=>$request->con_text,
+                                'photo'=>$name,
+                                'created_at'=>now()
+                            ); //dd($data);
+                        }else{
+                            $data=array(
+                                'lesson_name'=>$request->lesson_name,
+                                'slug'=>Str::of($request->lesson_name)->slug('-'),
+                                'cat_id'=>$request->category,
+                                'status'=>$request->status,
+                                'content_text'=>'',
+                                'photo'=>$name,
+                                'created_at'=>now()
+                            ); //dd($data);
+                        }
+                        Lesson::insert($data);
+                        return redirect()->route('lesson');
+                    }
+                }else{return redirect()->route('new_lesson');}
             }
+            
         }
         
     }
@@ -66,7 +94,7 @@ class LessonController extends Controller
     public function lesson_update(Request $request, $id){
         $validation = [
             'lesson_name'=> 'required',
-            'con_text' => 'required',
+            
         ];
         $rules = validator($request->all(), $validation,[
             'min' => ':attribute sahesi minimum :min olmaldir'
@@ -87,17 +115,30 @@ class LessonController extends Controller
                     $name = time().'.'.$file->getClientOriginalName();
 
                     $file->move(public_path().'/lessons',$name);
+                    if(!empty($request->con_text)){
 
-                    DB::table('lessons')
-                    ->update([
-                        'lesson_name' => $request->lesson_name,
-                        'slug'=>Str::of($request->lesson_name)->slug('-'),
-                        'cat_id' => $request->category,
-                        'status' => $request->status,
-                        'content_text' => $request->con_text,
-                        'photo' => $name,
-                        'updated_at' => now()
-                    ]);
+                        DB::table('lessons')
+                        ->update([
+                            'lesson_name' => $request->lesson_name,
+                            'slug'=>Str::of($request->lesson_name)->slug('-'),
+                            'cat_id' => $request->category,
+                            'status' => $request->status,
+                            'content_text' => $request->con_text,
+                            'photo' => $name,
+                            'updated_at' => now()
+                        ]);
+                    }else{
+                        DB::table('lessons')
+                        ->update([
+                            'lesson_name' => $request->lesson_name,
+                            'slug'=>Str::of($request->lesson_name)->slug('-'),
+                            'cat_id' => $request->category,
+                            'status' => $request->status,
+                            'content_text' => '',
+                            'photo' => $name,
+                            'updated_at' => now()
+                        ]);
+                    }
 
             }
         return redirect()->route('lesson');

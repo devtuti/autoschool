@@ -1,0 +1,130 @@
+<?php
+
+namespace App\Http\Controllers\back;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Models\CarCategory;
+
+class CarCategoryController extends Controller
+{
+    protected $appends = [
+        'getParentsTree'
+    ];
+
+    public function __construct(){
+        
+        view()->share("grade_count", DB::table('admins')->where('grade', '=','0')->count());
+        view()->share("user_count", DB::table('users')->where('status', '=','0')->count());
+
+    }
+
+    public static function getParentsTree($category, $title=null){
+        if($category->sub_id == 0){
+            return $title;
+        }
+        $parent = CarCategory::find($category->sub_id);
+        $title = $parent->cat_name .''. $title;
+
+        return CarCategoryController::getParentsTree($parent, $title);
+    }
+
+    public function car_categories(){
+        $categories= CarCategory::with('children')->paginate(10);
+        return view('back.system.car_cat_list',compact('categories'));
+    }
+
+    public function car_category_add(){
+        $categories = DB::table('car_categories')->where('sub_id',0)->get();
+        return view('back.system.car_cat_insert', compact('categories'));
+    }
+
+    public function car_category_post(Request $request){
+        $validation = [
+            'cat_name'=> 'required',
+        ];
+        $rules = validator($request->all(), $validation,[
+            'min' => ':attribute sahesi minimum :min olmaldir'
+        ]);
+        if($rules->fails()){
+            return redirect()->back()->withErrors($rules)->withInput();
+        }else{
+            foreach($request->cat_name as $item=>$v){
+                $data=array(
+                    'cat_name'=>$request->cat_name[$item],
+                    'slug'=>Str::of($request->cat_name[$item])->slug('-'),
+                    'sub_id'=>$request->category[$item],
+                    'status'=>$request->status[$item],
+                    'created_at'=>now()
+                );
+                CarCategory::insert($data);
+            }
+            return redirect()->route('car_cat');
+        }
+        
+    }
+
+    public function car_cat_edit($id){
+        $cats = DB::table('car_categories')->where('id',$id)->first();
+        $parent = DB::table('car_categories')->where('sub_id',0)->get();
+        return view('back.system.car_cat_edit', compact('cats', 'parent'));
+    }
+
+    public function car_cat_update(Request $request, $id){
+        $validation = [
+            'cat_name'=> 'required | min:5',
+        ];
+        $rules = validator($request->all(), $validation,[
+            'min' => ':attribute sahesi minimum :min olmaldir'
+        ]);
+        if($rules->fails()){
+            return redirect()->back()->withErrors($rules)->withInput();
+        }else{
+            $update=DB::table('car_categories')->where('id',$id)->update([
+                'cat_name'=>$request['cat_name'],
+                'slug'=>Str::of($request['cat_name'])->slug('-'),
+                'sub_id'=>$request['category'],
+                'status'=>$request['status'],
+                'updated_at'=>now()
+            ]);
+            if($update){
+                return redirect()->route('car_cat');
+            }
+        }
+    }
+
+    public function car_cat_delete($id){
+        CarCategory::find($id)->delete();
+        return redirect()->back();
+    }
+
+    public function car_cat_trashed(){
+        $categories = CarCategory::onlyTrashed()->with('children')->paginate(10); 
+        return view('back.system.car_cat_trashed', compact('categories'));
+    }
+
+    public function car_cat_restore($id){
+        CarCategory::onlyTrashed()->find($id)->restore();
+        return redirect()->back();
+    }
+
+    public function car_cat_destroy($id){
+        CarCategory::onlyTrashed()->find($id)->forceDelete();
+        return redirect()->back();
+    }
+
+    public function car_cat_alldelete(Request $request){
+        $check = $request->cat_id;
+        CarCategory::whereIn('id',$check)->delete();
+        return redirect()->back();
+    }
+
+    public function car_cat_trashed_delete(Request $request){
+        $check = $request->cat_id;
+        CarCategory::onlyTrashed()->whereIn('id',$check)->forceDelete();
+        return redirect()->back();
+    }
+
+}

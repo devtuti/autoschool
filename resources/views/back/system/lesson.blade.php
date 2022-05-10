@@ -63,7 +63,7 @@
                                 @foreach($lessons as $lesson)
                                 <tr>
                                 <td><input type="checkbox" name="lesson_id[]" value="{{$lesson->id}}"></td>
-                                <td>{{$lesson->id}}</td>
+                                <td>{{$lesson->l_id}}</td>
                                 <td>
                                     {{$lesson->cat_name}}
                                 </td>
@@ -78,10 +78,10 @@
                                 <td>{{$lesson->created_at}}</td>
                                 <td>{{$lesson->updated_at}}</td>
                                 <td>
-                                    <a href="{{route('lesson_edit', $lesson->id)}}">
+                                    <a href="{{route('lesson_edit', $lesson->l_id)}}">
                                     <i class="material-icons">edit</i>
                                     </a>
-                                    <a href="{{route('lesson_delete', $lesson->id)}}">
+                                    <a href="{{route('lesson_delete', $lesson->l_id)}}">
                                     <i class="material-icons">auto_delete</i>
                                     </a>
                                 </td>

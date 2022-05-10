@@ -11,7 +11,7 @@ class TestAnswer extends Model
     use HasFactory;
     use SoftDeletes;
     protected $fillable = [
-        't_q_id', 'answer', 'correct_answer', 'created_at', 'updated_at'
+        'a_id', 't_q_id', 'answer', 'correct_answer', 'created_at', 'updated_at'
     ];
 
     public function test_question()

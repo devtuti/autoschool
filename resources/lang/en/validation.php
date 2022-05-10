@@ -151,7 +151,23 @@ return [
         'cat_name' => 'Category',
         'lesson_name' => 'Lesson',
         'con_text' => 'Content Text',
+        //'test_exp' => 'Test explanation',
         'q_name' => 'Question',
+        'answer' => 'Answer',
+        'adminname' => 'User',
+        'username' => 'User',
+        'email'=> 'Email',
+        'phone' => 'Phone',
+        'pass' => 'Password',
+        'password' => 'Password',
+        'password_confirmation' => 'Confirm password',
+        'group_name' => 'Group name',
+        'teacher' => 'Teacher',
+        'photo' =>'Photo',
+        'amount'=>'Amount',
+        'from'=>'Ilk tarix araligi',
+        'to'=>'Son tarix araligi',
+
     ],
 
 ];

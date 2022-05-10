@@ -34,8 +34,9 @@
                                     <th>Question Name</th>
                                     <th>Categories</th>
                                     <th>Question</th>
-                                    <th>Bal</th>
+                                    <th>Variant</th>
                                     <th>Status</th>
+                                    <th>Photo</th>
                                     <th>
                                         <a href="javascript:void(0)" class="addRow"><i class="material-icons">add</i>
                                     </th>
@@ -44,11 +45,11 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                        <input type="text" class="form-control" name="q_name[]">
+                                        <input type="text" class="form-control" name="q_name">
                                     </td>
 
                                     <td>
-                                    <select name="category[]" class="form-control">
+                                    <select name="category" class="form-control">
                                         
                                         @foreach($categories as $cat)
                                         <option value="{{$cat->id}}">{{$cat->cat_name}}</option>
@@ -57,17 +58,27 @@
                                     </td>
 
                                     <td>
-                                        <textarea class="form-control" rows="5" name="con_text[]"></textarea>
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control" name="bal[]">
+                                        <textarea class="form-control" rows="5" name="con_text"></textarea>
                                     </td>
 
                                     <td>
-                                    <select id="inputState" class="form-control" name="status[]">
+                                        @for ($x = 1; $x <= 5; $x++) 
+                                            <input type="radio" name="variant" value="{{$x}}">{{$x}}
+                                        @endfor
+                                    </td>
+
+                                    <td>
+                                    <select id="inputState" class="form-control" name="status">
                                         <option selected value="0">Passiv</option>
                                         <option value="1">Active</option>
                                     </select>
+                                    </td>
+
+                                    <td>
+                                    <div class="input-group mb-3">
+                                        <input type="file" class="form-control" id="inputGroupFile02" name="photo">
+                                        <label class="input-group-text" for="inputGroupFile02">Upload</label>
+                                    </div>
                                     </td>
 
                                     <td>
@@ -101,17 +112,18 @@
             var tr = '<tr>'+
             '<td><input type="text" name="q_name[]" class="form-control"></td>'+
             '<td><select name="category[]" class="form-control">'+
-                '<option value="0">Ana kategori</option>'+
+                
                     '@foreach($categories as $cat)'+
                         '<option value="{{$cat->id}}">{{$cat->cat_name}}</option>'+
                     '@endforeach'+
             '</select></td>'+
             '<td> <textarea class="form-control" rows="5" name="con_text[]"></textarea></td>'+
-            '<td><input type="number" class="form-control" name="bal[]"></td>'+
+            '<td>@for ($x = 1; $x <= 5; $x++) <input type="radio" name="variant" value="{{$x}}">{{$x}} @endfor </td>'+
             '<td><select id="inputState" class="form-control" name="status[]">'+
                 '<option selected value="0">Passiv</option>'+
                 '<option value="1">Active</option>'+
                 '</select> </td>'+
+            '<td><div class="input-group mb-3"><input type="file" class="form-control" id="inputGroupFile02" name="photo[]"><label class="input-group-text" for="inputGroupFile02">Upload</label></div></td>'+
             '<td><a href="javascript:void(0)" class="btn btn-danger remove"><i class="material-icons">remove</i></a></td>'+
             '</tr>';
             $('tbody').append(tr);

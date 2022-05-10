@@ -3,12 +3,151 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Models\Category;
+use App\Models\GroupUsers;
+use App\Models\Jurnal;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Test_User_Answer;
+use App\Models\Shares;
+use Illuminate\Support\Facades\Validator;
+use File;
 
 class HomeController extends Controller
 {
-    public function index(){
-        return view('front.home');
+
+    public function __construct(){
+        view()->share("groups", GroupUsers::all());
+        view()->share("jurnal", Jurnal::all());
+        view()->share("categories", Category::where('sub_id', 0)->where('status','1')->with('children')->get());
     }
+
+    public function index(){
+        $user_id = Auth::user()->id;
+        $user_correct_count = DB::table('test_user_answers')
+                ->select(DB::raw('COUNT(question_id) AS user_correct_count'))  // user_id yazilmamalidir countda
+                ->join('test_questions', 'test_questions.id', '=', 'test_user_answers.question_id')
+                //->join('test_answers', 'test_answers.a_id', '=', 'test_user_answer.answer_id')
+                ->where('test_user_answers.user_id', '=', $user_id)
+                ->where('test_questions.correct_answer', '=', 'test_user_answers.answer')
+                ->groupBy('test_questions.cat_id')
+                ->get();
+        $question_correct_count = DB::table('test_questions')
+                            ->select(DB::raw('COUNT(id) AS question_correct_count'))
+                            ->groupBy('test_questions.cat_id')
+                            ->get();
+            foreach($user_correct_count as $u_c_c){
+                foreach($question_correct_count as $q_c_c){
+                    $u_c =$u_c_c->user_correct_count;
+                    $q_c = $q_c_c->question_correct_count;
+                    $faiz = ($u_c*100)/$q_c;
+                }
+            }
+        $hit = DB::table('test_user_answers')
+            ->join('test_questions', 'test_questions.id', '=', 'test_user_answers.question_id')
+            ->join('users', 'users.id', '=', 'test_user_answers.user_id')
+            //->join('test_answers', 'test_answers.a_id', '=', 'test_user_answer.answer_id')
+            ->select('users.name', 'test_user_answers.created_at as user_date', DB::raw('COUNT(test_user_answers.question_id) AS quest_count'))
+            ->where('test_questions.correct_answer', '=', 'test_user_answers.answer')
+            ->groupBy('test_questions.cat_id')
+            ->limit(5)
+            ->get();
+        $teachers = DB::table('admins')
+                    ->where('grade','=','2')
+                    ->where('status','=','1')
+                    ->get();
+        /*
+        Suallari category gore qruplayib sayi 100%.
+        hemin category gore qruplanmiw test_questions id beraber olmalidi test_user_answer.question_id ve user_id=giren usere
+        ordan cixan answer_id beraber olmalidi test_answers.a_id 
+        where test_answers.correct_answer=1
+    */
+        return view('front.home', compact('user_correct_count', 'faiz', 'hit','teachers'));
+    }
+
+    public function share(Request $request){
+       $validator = Validator::make($request->all(), [
+            'share_post'=>'required',
+            'share_photo'=>'image',
+        ],[
+            
+            'share_post.required'=>'Share post is required ',
+            'share_photo.image' => 'Share photo has been image',
+        ]);
+        if(!$validator->passes()){
+            return response()->json(['code'=>0,'error'=>$validator->errors()->toArray()]);
+        }else{
+            if($request->hasFile('share_photo')){
+                $file = $request->file('share_photo');
+                $file_name = time().'-'.$file->getClientOriginalName();
+                $upload = $file->move(public_path().'/shares',$file_name);
+                if($upload){
+                    Shares::insert([
+                        'content_text'=>$request->share_post,
+                        'photo'=>$file_name,
+                        'user_id'=>Auth::user()->id,
+                        'privacy'=>$request->teacher,
+                        'created_at'=>now()
+                    ]);
+                    return response()->json(['code'=>1,'msg'=>'New share post has been saved successfuly']);
+                }
+            }
+        }
+        
+    }
+
+    public function category($slug){
+        //$categories = Category::where('sub_id', 0)->with('children')->get();
+
+        $cat = DB::table('categories')->where('slug','=',$slug)->first();
+        $lessons = DB::table('lessons')
+                    ->join('categories', 'categories.id', '=', 'lessons.cat_id')
+                    ->where('lessons.cat_id','=', $cat->id)
+                    ->where('lessons.status', '=', '1')
+                    ->select('categories.*','lessons.*', 'lessons.slug as l_slug')
+                    ->get();
+        return view('front.lesson', compact('lessons'));
+    }
+    public function lesson($slug){
+        //$categories = Category::where('sub_id', 0)->with('children')->get();
+        $lesson = DB::table('lessons')->where('slug','=',$slug)->first();
+        return view('front.lesson_single', compact('lesson'));
+    }
+
+    public function test($id){
+        $tests = DB::table('test_questions')
+                ->join('categories','categories.id','=','test_questions.cat_id')
+                ->where('test_questions.cat_id', '=', $id)
+                ->where('test_questions.staus', '=', '1')
+                ->select('test_questions.*', 'test_questions.id as q_id')
+                ->get();
+        $count_test = DB::table('test_questions')->where('staus','1')->get()->count();
+        //$useranswers = DB::table('test_user_answers')->get();
+        return view('front.test', compact('tests','count_test'));
+    }
+
+    public function test_user(Request $request){/*
+        $tests = DB::table('test_questions')
+                ->where('staus', '=', '1')
+                ->get();
+        foreach($tests as $test){
+            foreach($request->user as $item=>$v){
+                    $data=array(
+                        'user_id'=>$request->user[$item],
+                        'question_id'=>$request->question.$test->id,
+                        'answer'=>$request->answer.$test->id,
+                        'created_at'=>now()
+                    );
+            }
+        }*/
+        $data = $request->all();
+        Test_User_Answer::insert($data);
+        return redirect()->route('home');
+        //dd($request->all());
+    }
+
+
     public function about(){
         return view('front.about');
     }

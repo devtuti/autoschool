@@ -24,7 +24,7 @@
                   </div>
                   @endforeach
                 @endif
-                  <form action="{{route('test_question_edit_post', $question->id)}}" method="post">
+                  <form action="{{route('test_question_edit_post', $question->id)}}" method="post" enctype="multipart/form-data">
                     @csrf
                   <div class="row">
                       
@@ -52,13 +52,6 @@
 
                       <div class="col-md-3">
                         <div class="form-group">
-                          <label class="bmd-label-floating">Bal</label>
-                          <input type="text" class="form-control" name="bal" value="{{$question->bal}}">
-                        </div>
-                      </div>
-
-                      <div class="col-md-3">
-                        <div class="form-group">
                         <label class="bmd-label-floating">Status</label>
                         <select id="inputState" class="form-control" name="status">
                             @if($question->staus==0)
@@ -78,14 +71,36 @@
                       <div class="col-md-12">
                         <div class="form-group">
                           <label>Content Text</label>
-                          <div class="form-group">
+                          
                             <label class="bmd-label-floating"> Lamborghini Mercy, Your chick she so thirsty, I'm in that two seat Lambo.</label>
                             <textarea class="form-control" rows="5" name="con_text">{{$question->question}}</textarea>
-                          </div>
+                          
                         </div>
                       </div>
                     </div>
-                   
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          @for ($x = 1; $x <= 5; $x++) 
+                            @if($question->correct_answer==$x)
+                              <input type="radio" name="variant" value="{{$x}}" checked>{{$x}}
+                            @else
+                              <input type="radio" name="variant" value="{{$x}}">{{$x}}
+                            @endif
+                          @endfor
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <input type="file" class="form-control" id="inputGroupFile02" name="photo" value="{{$question->photo}}">
+                            
+                            <img class="img-responsive" style="max-height:50px; max-width:50px;" src="/lessons/{{$question->photo}}"> 
+                          </div>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-primary pull-right">Update question</button>
                     <div class="clearfix"></div>
                   </form>

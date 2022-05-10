@@ -11,8 +11,9 @@ class TestQuestion extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $table = 'test_questions';
     protected $fillable = [
-        'cat_id', 'question_name', 'slug', 'question', 'bal', 'status', 'created_at', 'updated_at'
+        'cat_id', 'question_name', 'slug', 'question', 'staus', 'correct_answer', 'photo', 'created_at', 'updated_at'
     ];
 
     public function category()

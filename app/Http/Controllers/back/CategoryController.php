@@ -24,9 +24,17 @@ class CategoryController extends Controller
         return CategoryController::getParentsTree($parent, $title);
     }
 
+    public function __construct(){
+        
+        view()->share("grade_count", DB::table('admins')->where('grade', '=','0')->count());
+        view()->share("user_count", DB::table('users')->where('status', '=','0')->count());
+
+    }
+
     public function categories(){
+        $grade_count = DB::table('admins')->where('grade', '=','0')->count();
         $categories= Category::with('children')->paginate(10);
-        return view('back.system.cat_list',compact('categories'));
+        return view('back.system.cat_list',compact('grade_count', 'categories'));
     }
 
     public function category_add(){

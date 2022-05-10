@@ -18,7 +18,7 @@ class Lessons extends Migration
             $table->unsignedBigInteger('cat_id');
             $table->string('lesson_name', 155);
             $table->string('slug',200);
-            $table->longText('content_text');
+            $table->longText('content_text')->null();
             $table->string('photo', 155);
             $table->enum('status', [0,1])->default(0);
             $table->softDeletes();
