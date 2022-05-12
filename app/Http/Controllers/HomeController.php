@@ -10,6 +10,7 @@ use App\Models\GroupUsers;
 use App\Models\Jurnal;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Test_User_Answer;
+use App\Models\User_resultats;
 use App\Models\Shares;
 use Illuminate\Support\Facades\Validator;
 use File;
@@ -127,24 +128,40 @@ class HomeController extends Controller
         return view('front.test', compact('tests','count_test'));
     }
 
-    public function test_user(Request $request){/*
-        $tests = DB::table('test_questions')
-                ->where('staus', '=', '1')
-                ->get();
-        foreach($tests as $test){
-            foreach($request->user as $item=>$v){
+    public function test_user(Request $request){
+    
+            foreach($request->question as $item=>$v){ 
                     $data=array(
-                        'user_id'=>$request->user[$item],
-                        'question_id'=>$request->question.$test->id,
-                        'answer'=>$request->answer.$test->id,
+                        'user_id'=>$request->user,
+                        'question_id'=>$request->question[$item],
+                        'answer'=>$request->answer[$item],
                         'created_at'=>now()
-                    );
+                    ); 
+                        $delete = Test_User_Answer::where('question_id',$request->question[$item])->where('user_id',$request->user)->delete();
+                        Test_User_Answer::insert($data); //dd($data);
+
+                        $correct_count = DB::table('test_user_answers')
+                                ->join('test_questions','test_questions.id','=','test_user_answers.question_id')
+                                ->where('test_user_answers.question_id','=',$request->question[$item])
+                                ->where('test_user_answers.user_id','=',$request->user)
+                                ->get();
+                        $count =count($correct_count);
+                        $test_count = DB::table('test_questions')
+                                        ->where('staus','=','1')
+                                        ->count();
+                        $x = ($count*100)/$test_count;
+                        //return $count.'='.$test_count.'='.round($x);
+                        $data2=array(
+                            'user_id'=>$request->user,
+                            'correct_count'=>$count,
+                            'correct_percent'=>round($x),
+                            'created_at'=>now()
+                        ); 
             }
-        }*/
-        $data = $request->all();
-        Test_User_Answer::insert($data);
+            User_resultats::insert($data2);
+
         return redirect()->route('home');
-        //dd($request->all());
+        
     }
 
 

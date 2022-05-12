@@ -25,16 +25,16 @@
               <h5 class="card-title">Test sayi: {{$count_test}}</h5>
                 <form action="{{route('test_user')}}" method="post">
                     @csrf
-                    <input type="hidden" name="user[]" value="{{Auth::user()->id}}">
+                    <input type="hidden" name="user" value="{{Auth::user()->id}}">
                     <div class="form-group">
                     @foreach($tests as $test)
-                        <input type="hidden" name="question{{$test->q_id}}" value="{{$test->q_id}}">
+                        <input type="hidden" name="question[]{{$test->q_id}}" value="{{$test->q_id}}">
                         <p class="card-text">{{$test->question}}</p>
                         
                           @for ($x = 1; $x <= 5; $x++) 
                          
                           <div class="form-check">
-                            <input class="form-check-input" type="radio" id="radio{{$test->q_id}}{{$x}}" name="answer{{$test->q_id}}" value="{{$x}}">
+                            <input class="form-check-input" type="radio" id="radio{{$test->q_id}}{{$x}}" name="answer[]{{$test->q_id}}" value="{{$x}}">
                             <label class="form-check-label">{{$x}}</label>
                           </div>
                           @endfor
@@ -42,7 +42,7 @@
                     @endforeach
                     
                     </div>
-                    <button type="submit" class="btn btn-info">Cavabla</button>
+                    <button type="submit" onclick='return deleted();' class="btn btn-info">Cavabla</button>
                 </form>
               </div>
             </div>
@@ -87,6 +87,10 @@
             }       
         })
     })
+
+    function deleted(){
+      localStorage.removeItem("selected_radio");
+    }
 
 </script>
 @endsection

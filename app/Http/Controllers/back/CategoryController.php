@@ -59,7 +59,7 @@ class CategoryController extends Controller
                     'sub_id'=>$request->category[$item],
                     'status'=>$request->status[$item],
                     'created_at'=>now()
-                );
+                ); //dd($data);
                 Category::insert($data);
             }
             return redirect()->route('cat');
