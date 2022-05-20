@@ -47,7 +47,9 @@ Route::get('/student_login', [StudentLoginController::class, 'login'])->middlewa
 Route::post('/studentlogin', [StudentLoginController::class, 'studentlogin'])->middleware('isStudentLogin')->name('student_login');
 //Route::get('/', [HomeController::class, 'index'])->name('home');
 //Route::get('/about', [HomeController::class, 'about'])->name('about');
-Route::get('/profile_edit/{id?}', [StudentLoginController::class, 'edit'])->middleware('isStudentAdmin')->name('profile.edit');
+Route::get('/profile', [StudentLoginController::class, 'profile'])->middleware('isStudentAdmin')->name('profile');
+Route::get('/profile/question/{id?}', [StudentLoginController::class, 'user_question'])->middleware('isStudentAdmin')->name('profile.question');
+//Route::get('/profile_edit/{id?}', [StudentLoginController::class, 'edit'])->middleware('isStudentAdmin')->name('profile.edit');
 Route::post('/post_profile_edit/{id?}', [StudentLoginController::class, 'edit_post'])->middleware('isStudentAdmin')->name('post.edit.profile');
 Route::get('/home', [HomeController::class, 'index'])->middleware('isStudentAdmin')->name('home');
 Route::get('/balance', [BalanceController::class, 'balance'])->middleware('isStudentAdmin')->name('balance');
@@ -59,6 +61,8 @@ Route::get('/question', [ExamController::class, 'question'])->middleware('isStud
 Route::get('/cat/{slug?}', [HomeController::class, 'category'])->middleware('isStudentAdmin')->name('category');
 Route::get('/lesson/{slug?}', [HomeController::class, 'lesson'])->middleware('isStudentAdmin')->name('single_lesson');
 Route::post('/share', [HomeController::class, 'share'])->middleware('isStudentAdmin')->name('post_share');
+Route::get('/share/{id?}', [StudentLoginController::class, 'share'])->middleware('isStudentAdmin')->name('share');
+Route::post('/share_edit/{id?}', [StudentLoginController::class, 'share_edit_post'])->middleware('isStudentAdmin')->name('share.edit.post');
 Route::get('/mesajs', [MesajController::class, 'sms'])->middleware('isStudentAdmin')->name('sms');
 Route::get('/mesaj_user/{id?}', [MesajController::class, 'sms_user'])->middleware('isStudentAdmin')->name('sms.user');
 Route::post('/post_mesaj', [MesajController::class, 'post_sms'])->middleware('isStudentAdmin')->name('post.mesaj');

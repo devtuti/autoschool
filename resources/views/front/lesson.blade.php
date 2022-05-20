@@ -12,35 +12,43 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    
+  <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <!--<h1></h1>-->
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
 
     <!-- Main content -->
     <div class="content">
-      <div class="container-fluid">
-          @foreach($lessons as $lesson)
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">{{$lesson->lesson_name}}</h5><br>
-                <img src="{{asset('lessons/'.$lesson->photo)}}" width="300px" min-height="300px"/><br>
-                <p class="card-text">
-                  {{Str::limit($lesson->content_text, 50)}}
-                </p>
 
-                <a href="{{route('single_lesson')}}/{{$lesson->l_slug}}" class="card-link">More</a>
-                <a href="{{route('tests')}}/{{$lesson->cat_id}}" class="card-link">Tests</a>
+    @foreach($lessons as $lesson)
+    <div class="card card-solid">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12 col-sm-6">
+              <h3 class="d-inline-block d-sm-none">{{$lesson->lesson_name}}</h3>
+              <div class="col-12">
+              @if(!empty($lesson->photo))
+                <img src="{{asset('lessons/'.$lesson->photo)}}" class="product-image" alt="">
+              @endif
               </div>
             </div>
 
-            
+            <div class="col-12 col-sm-6">
+              <h3 class="my-3">{{$lesson->lesson_name}}</h3>
+              <p>{{Str::limit($lesson->content_text, 50)}}</p>
+              <a href="{{route('single_lesson')}}/{{$lesson->l_slug}}" class="card-link">More</a>
+              <a href="{{route('tests')}}/{{$lesson->cat_id}}" class="card-link">Tests</a>
+            </div>
           </div>
-          <!-- /.col-md-6 -->
-       
         </div>
-        @endforeach
-        <!-- /.row -->
-      </div><!-- /.container-fluid -->
+    </div>
+    @endforeach
+
     </div>
     <!-- /.content -->
   </div>

@@ -12,4 +12,9 @@ class User_resultats extends Model
     protected $fillable = [
         'user_id', 'correct_count', 'correct_percent', 'created_at', 'updated_at'
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

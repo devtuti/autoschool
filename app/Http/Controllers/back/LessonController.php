@@ -27,7 +27,7 @@ class LessonController extends Controller
     }
 
     public function lesson_add(){
-        $categories = DB::table('categories')->where('sub_id', '>', 0)->get();
+        $categories = DB::table('categories')->where('sub_id', '>', 0)->where('status','1')->get();
         return view('back.system.lesson_insert', compact('categories'));
     }
 
@@ -42,42 +42,37 @@ class LessonController extends Controller
         if($rules->fails()){
             return redirect()->back()->withErrors($rules)->withInput();
         }else{
-            $categories = DB::table("categories")->get();
-            foreach($categories as $cat){
-                if($cat->status==1){
-                    if($request->hasFile('photo')){
-                        $file = $request->file('photo');
-                        $name = $file->getClientOriginalName();
-                        $name = time().'.'.$file->getClientOriginalName();
-                        
-                        $file->move(public_path().'/lessons',$name);
-                        if(!empty($request->con_text)){
-                       
+                        if(empty($request->con_text)){
+                            if($request->hasFile('photo')){
+                                $file = $request->file('photo');
+                                $name = $file->getClientOriginalName();
+                                $name = time().'.'.$file->getClientOriginalName();
+                                
+                                $file->move(public_path().'/lessons',$name);
+                                $data=array(
+                                    'lesson_name'=>$request->lesson_name,
+                                    'slug'=>Str::of($request->lesson_name)->slug('-'),
+                                    'cat_id'=>$request->category,
+                                    'status'=>$request->status,
+                                    'content_text'=>'',
+                                    'photo'=>$name,
+                                    'created_at'=>now()
+                                ); //dd($data);
+                            }
+                            
+                        }elseif(empty($request->file('photo'))){
                             $data=array(
                                 'lesson_name'=>$request->lesson_name,
                                 'slug'=>Str::of($request->lesson_name)->slug('-'),
                                 'cat_id'=>$request->category,
                                 'status'=>$request->status,
                                 'content_text'=>$request->con_text,
-                                'photo'=>$name,
-                                'created_at'=>now()
-                            ); //dd($data);
-                        }else{
-                            $data=array(
-                                'lesson_name'=>$request->lesson_name,
-                                'slug'=>Str::of($request->lesson_name)->slug('-'),
-                                'cat_id'=>$request->category,
-                                'status'=>$request->status,
-                                'content_text'=>'',
-                                'photo'=>$name,
+                                'photo'=>'',
                                 'created_at'=>now()
                             ); //dd($data);
                         }
                         Lesson::insert($data);
                         return redirect()->route('lesson');
-                    }
-                }else{return redirect()->route('new_lesson');}
-            }
             
         }
         
@@ -87,7 +82,7 @@ class LessonController extends Controller
         $lesson = DB::table('lessons')
                 ->where('id', $id)
                 ->first();
-        $categories = DB::table('categories')->where('sub_id', '>', 0)->get();
+        $categories = DB::table('categories')->where('sub_id', '>', 0)->where('status','1')->get();
         return view('back.system.lesson_edit', compact('lesson', 'categories'));
     }
 
@@ -103,46 +98,46 @@ class LessonController extends Controller
         if($rules->fails()){
             return redirect()->back()->withErrors($rules);
         }else{
-            $photo = Lesson::findOrFail($id);
-            if(File::exists("lessons/".$photo->photo)){
-                File::delete("lessons/".$photo->photo);
-            }
-
-            if($request->hasFile('photo')){
-                $file = $request->file('photo');
-                
-                    $name = $file->getClientOriginalName();
-                    $name = time().'.'.$file->getClientOriginalName();
-
-                    $file->move(public_path().'/lessons',$name);
+            
                     if(!empty($request->con_text)){
-
-                        DB::table('lessons')
-                        ->update([
-                            'lesson_name' => $request->lesson_name,
-                            'slug'=>Str::of($request->lesson_name)->slug('-'),
-                            'cat_id' => $request->category,
-                            'status' => $request->status,
-                            'content_text' => $request->con_text,
-                            'photo' => $name,
-                            'updated_at' => now()
-                        ]);
-                    }else{
-                        DB::table('lessons')
-                        ->update([
-                            'lesson_name' => $request->lesson_name,
-                            'slug'=>Str::of($request->lesson_name)->slug('-'),
-                            'cat_id' => $request->category,
-                            'status' => $request->status,
-                            'content_text' => '',
-                            'photo' => $name,
-                            'updated_at' => now()
-                        ]);
+                            DB::table('lessons')
+                            ->update([
+                                'lesson_name' => $request->lesson_name,
+                                'slug'=>Str::of($request->lesson_name)->slug('-'),
+                                'cat_id' => $request->category,
+                                'status' => $request->status,
+                                'content_text' => $request->con_text,
+                                'photo' => '',
+                                'updated_at' => now()
+                            ]);
+                    }elseif(empty($request->file('photo'))){
+                        $photo = Lesson::findOrFail($id);
+                        if(File::exists("lessons/".$photo->photo)){
+                            File::delete("lessons/".$photo->photo);
+                        }
+                        if($request->hasFile('photo')){
+                            $file = $request->file('photo');
+                            
+                                $name = $file->getClientOriginalName();
+                                $name = time().'.'.$file->getClientOriginalName();
+            
+                                $file->move(public_path().'/lessons',$name);
+                            DB::table('lessons')
+                            ->update([
+                                'lesson_name' => $request->lesson_name,
+                                'slug'=>Str::of($request->lesson_name)->slug('-'),
+                                'cat_id' => $request->category,
+                                'status' => $request->status,
+                                'content_text' => '',
+                                'photo' => $name,
+                                'updated_at' => now()
+                            ]);
+                        }
                     }
+                 }
 
-            }
         return redirect()->route('lesson');
-        }
+        
     }
 
     public function lesson_delete($id){

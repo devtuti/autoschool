@@ -12,7 +12,15 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    
+  <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Tests</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
 
     <!-- Main content -->
     <div class="content">
@@ -25,6 +33,7 @@
               <h5 class="card-title">Test sayi: {{$count_test}}</h5>
                 <form action="{{route('test_user')}}" method="post">
                     @csrf
+                    <input type="hidden" name="cat" value="{{$id}}">
                     <input type="hidden" name="user" value="{{Auth::user()->id}}">
                     <div class="form-group">
                     @foreach($tests as $test)
@@ -63,7 +72,7 @@
 @section('js')
 <script>
 
-    const selected_radio = localStorage.getItem('selected_radio')
+    const selected_radio = localStorage.getItem('selected_radio{{$id}}')
             
         if (selected_radio){
                 const get_array = JSON.parse(selected_radio)
@@ -75,21 +84,21 @@
     const radioBtn = document.querySelectorAll('input[type=radio]')
     radioBtn.forEach(btn => {
         btn.addEventListener('click', function(){
-            const current_data =JSON.parse( localStorage.getItem('selected_radio'))
+            const current_data =JSON.parse( localStorage.getItem('selected_radio{{$id}}'))
 
             if (current_data){
                     current_data.push(btn.id)
-                localStorage.setItem("selected_radio", JSON.stringify(current_data) )
+                localStorage.setItem("selected_radio{{$id}}", JSON.stringify(current_data) )
             }else{
                 fist_data = []
                 fist_data.push(btn.id)
-                localStorage.setItem("selected_radio", JSON.stringify(fist_data) )
+                localStorage.setItem("selected_radio{{$id}}", JSON.stringify(fist_data) )
             }       
         })
     })
 
     function deleted(){
-      localStorage.removeItem("selected_radio");
+      localStorage.removeItem("selected_radio{{$id}}");
     }
 
 </script>

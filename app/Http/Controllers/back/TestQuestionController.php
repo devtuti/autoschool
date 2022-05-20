@@ -27,7 +27,7 @@ class TestQuestionController extends Controller
     }
 
     public function test_question_add(){
-        $categories = DB::table('categories')->where('sub_id', '>', 0)->get();
+        $categories = DB::table('categories')->where('sub_id', '>', 0)->where('status','1')->get();
         return view('back.system.test_question_insert', compact('categories'));
     }
 
@@ -42,18 +42,28 @@ class TestQuestionController extends Controller
         if($rules->fails()){
             return redirect()->back()->withErrors($rules)->withInput();
         }else{
-            $categories = DB::table("categories")->get();
-            foreach($categories as $cat){
-                if($cat->status==1){
-                    if($request->hasFile('photo')){
-                        $file = $request->file('photo');
-                        $name = $file->getClientOriginalName();
-                        $name = time().'.'.$file->getClientOriginalName();
-                        
-                        $file->move(public_path().'/tests',$name);
-                       
+                
                         //foreach($request->q_name as $item=>$v){
-                            if(!empty($request->con_text)){
+                            if(empty($request->con_text)){
+                                if($request->hasFile('photo')){
+                                    $file = $request->file('photo');
+                                    $name = $file->getClientOriginalName();
+                                    $name = time().'.'.$file->getClientOriginalName();
+                                    
+                                    $file->move(public_path().'/tests',$name);
+                                    $data=array(
+                                        'question_name'=>$request->q_name,
+                                        'slug'=>Str::of($request->q_name)->slug('-'),
+                                        'cat_id'=>$request->category,
+                                        'question'=>'',
+                                        'correct_answer'=>$request->variant,
+                                        'staus'=>$request->status,
+                                        'photo'=>$name,
+                                        'created_at'=>now()
+                                    );
+                                }
+
+                            }elseif(empty($request->file('photo'))){
                                 $data=array(
                                     'question_name'=>$request->q_name,
                                     'slug'=>Str::of($request->q_name)->slug('-'),
@@ -61,36 +71,22 @@ class TestQuestionController extends Controller
                                     'question'=>$request->con_text,
                                     'correct_answer'=>$request->variant,
                                     'staus'=>$request->status,
-                                    'photo'=>$name,
-                                    'created_at'=>now()
-                                );
-                            }else{
-                                $data=array(
-                                    'question_name'=>$request->q_name,
-                                    'slug'=>Str::of($request->q_name)->slug('-'),
-                                    'cat_id'=>$request->category,
-                                    'question'=>'',
-                                    'correct_answer'=>$request->variant,
-                                    'staus'=>$request->status,
-                                    'photo'=>$name,
+                                    'photo'=>'',
                                     'created_at'=>now()
                                 );
                             }
                             TestQuestion::insert($data);
+                            return redirect()->route('test_question');
                         //}
-                    }
-                }else{return redirect()->route('new_test_question');}
-            }
-            
-        }
-        
+         }
+           
     }
 
     public function test_question_edit($id){
         $question = DB::table('test_questions')
                 ->where('id', $id)
                 ->first();
-        $categories = DB::table('categories')->where('sub_id', '>', 0)->get();
+        $categories = DB::table('categories')->where('sub_id', '>', 0)->where('status','1')->get();
         return view('back.system.test_question_edit', compact('question', 'categories'));
     }
 
@@ -105,18 +101,7 @@ class TestQuestionController extends Controller
         if($rules->fails()){
             return redirect()->back()->withErrors($rules)->withInput();
         }else{
-            $photo = TestQuestion::findOrFail($id);
-            if(File::exists("lessons/".$photo->photo)){
-                File::delete("lessons/".$photo->photo);
-            }
-
-            if($request->hasFile('photo')){
-                $file = $request->file('photo');
-                
-                $name = $file->getClientOriginalName();
-                $name = time().'.'.$file->getClientOriginalName();
-
-                $file->move(public_path().'/lessons',$name);
+            
                 if(!empty($request->con_text)){
                     $update=DB::table('test_questions')->where('id',$id)->update([
                         'question_name'=>$request['q_name'],
@@ -125,25 +110,37 @@ class TestQuestionController extends Controller
                         'staus'=>$request['status'],
                         'question'=>$request['con_text'],
                         'correct_answer'=>$request['variant'],
-                        'photo' =>$request['photo'],
+                        'photo' =>'',
                         'updated_at'=>now()
                     ]);
-                }else{
-                    $update=DB::table('test_questions')->where('id',$id)->update([
-                        'question_name'=>$request['q_name'],
-                        'slug'=>Str::of($request['q_name'])->slug('-'),
-                        'cat_id'=>$request['category'],
-                        'staus'=>$request['status'],
-                        'question'=>'',
-                        'correct_answer'=>$request['variant'],
-                        'photo' =>$request['photo'],
-                        'updated_at'=>now()
-                    ]);
+                }elseif(empty($request->file('photo'))){
+                    $photo = TestQuestion::findOrFail($id);
+                    if(File::exists("lessons/".$photo->photo)){
+                        File::delete("lessons/".$photo->photo);
+                    }
+
+                    if($request->hasFile('photo')){
+                        $file = $request->file('photo');
+                        
+                        $name = $file->getClientOriginalName();
+                        $name = time().'.'.$file->getClientOriginalName();
+
+                        $file->move(public_path().'/lessons',$name);
+                        $update=DB::table('test_questions')->where('id',$id)->update([
+                            'question_name'=>$request['q_name'],
+                            'slug'=>Str::of($request['q_name'])->slug('-'),
+                            'cat_id'=>$request['category'],
+                            'staus'=>$request['status'],
+                            'question'=>'',
+                            'correct_answer'=>$request['variant'],
+                            'photo' =>$name,
+                            'updated_at'=>now()
+                        ]);
+                    }
+                    if($update){
+                        return redirect()->route('test_question');
+                    }
                 }
-                if($update){
-                    return redirect()->route('test_question');
-                }
-            }
         }
     }
 

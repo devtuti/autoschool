@@ -33,4 +33,9 @@ class Category extends Model
     {
         return $this->hasMany(TestQuestion::class);
     }
+
+    public function user_resultat()
+    {
+        return $this->hasMany(User_resultats::class);
+    }
 }
