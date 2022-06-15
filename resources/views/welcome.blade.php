@@ -19,8 +19,29 @@
                 font-family: 'Nunito';
             }
         </style>
+       <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+        <script>
+            $(document).ready(function(){
+                $('#formshare').on('submit', function(e){
+                e.preventDefault(); 
+                alert("hi");
+            });
+            });
+            
+        </script>
     </head>
     <body class="antialiased">
+    <form class="form-horizontal" id="formshare" action="" method="">
+                        @csrf
+                        <input type="hidden" id="share_edit">
+                        <div class="input-group input-group-sm mb-0">
+                          <input class="form-control form-control-sm" id="sh" placeholder="Response">
+                          <div class="input-group-append">
+                            <button type="submit" class="btn btn-danger">Send</button>
+                          </div>
+                          <span class="text-danger error-text share_post_error"></span>
+                        </div>
+                      </form>
         <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center sm:pt-0">
             @if (Route::has('login'))
                 <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">

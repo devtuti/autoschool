@@ -60,6 +60,15 @@
                 <p>User Reports</p>
             </a>
             </li>
+            <li class="nav-item dropdown ">
+              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false"><i class="material-icons">content_copy</i>Kurs</a>
+          
+              <div class="dropdown-menu">
+                <a class="dropdown-item  {{Route::is('kurs') ? 'active' : ''}}" href="{{route('kurs')}}">Kurs</a>
+                <a class="dropdown-item  {{Route::is('kurs_cat') ? 'active' : ''}}" href="{{route('kurs_cat')}}">Kurs Category</a>
+              </div>
+            </li>
+
           <li class="nav-item dropdown ">
           <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false"><i class="material-icons">content_copy</i>System</a>
           

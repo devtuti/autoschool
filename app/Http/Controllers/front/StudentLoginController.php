@@ -9,6 +9,7 @@ use App\Models\Admin;
 use App\Models\Category;
 use App\Models\GroupUsers;
 use App\Models\Jurnal;
+use App\Models\Shares;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use File;
@@ -80,10 +81,64 @@ class StudentLoginController extends Controller
     }
 
     public function share_edit_post(Request $request){
-        $data = array(
-            'content_text'=>$request->content_text
-        );
-        return $data;
+        /*$validation = [
+            'content_text'=> 'required',
+        ];
+        $rules = validator($request->all(), $validation,[
+            'min' => ':attribute sahesi minimum :min olmaldir'
+        ]);*/
+        $validator = Validator::make($request->all(), [
+            'content_text' =>'required',
+        ]);
+        if($validator->fails()){
+            //return redirect()->back()->withErrors($rules)->withInput();
+            return response()->json([
+                'status'=>400,
+                'errors'=>$validator->messages(),
+            ]);
+        }else{
+             DB::table('shares')
+                    ->update([
+                        'content_text'=>$request->content_text,         
+                        'updated_at' => now()
+                    ]);
+                return response()->json([
+                    'status'=>200,
+                    'message'=>'Updated',
+                ]);
+        }
+    }
+
+    public function share_delete(Request $request){
+        $id = $request->id;
+        $share = Shares::find($id);
+        if(!empty($share->photo)){
+            if(File::exists("shares/".$share->photo)){
+                File::delete("shares/".$share->photo);
+            }
+            $share->delete();
+        }else{
+            $share->delete();
+        }
+        
+        return response()->json(['success'=>'Record has been deeted']);
+    }
+
+    public function share_photo_delete(Request $request){
+        $id = $request->id;
+        $share = Shares::find($id);
+        if(empty($share->content_text)){
+            if(File::exists("shares/".$share->photo)){
+                File::delete("shares/".$share->photo);
+            }
+            $share->delete();
+        }else{
+            if(File::exists("shares/".$share->photo)){
+                File::delete("shares/".$share->photo);
+            }
+        }
+        
+        return response()->json(['success'=>'Record has been deeted']);
     }
 
     public function user_question(Request $request){

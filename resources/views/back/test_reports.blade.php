@@ -68,9 +68,13 @@
            data:{groups:groups},
             success: function(response){ 
               //alert(response.group);
-               $.each(response.group, function(key, item){
+               $.each(response.user_resultats, function(key, item){
                 $('tbody').append('<tr>\
-                <td>'+item.name+'</td></tr>');
+                <td>'+item.name+'</td>\
+                <td>'+item.cat_name+'</td>\
+                <td>'+item.correct_percent+'</td>\
+                <td>'+item.user_r_date+'</td>\
+                </tr>');
                });
            }
        });

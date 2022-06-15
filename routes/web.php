@@ -18,6 +18,8 @@ use \App\Http\Controllers\back\GroupUserController;
 use \App\Http\Controllers\back\JurnalController;
 use \App\Http\Controllers\back\ReportController;
 use \App\Http\Controllers\back\TestReportController;
+use \App\Http\Controllers\back\KursController;
+use \App\Http\Controllers\back\KursCategoryController;
 use \App\Http\Controllers\front\StudentRegisterController;
 use \App\Http\Controllers\front\StudentLoginController;
 use \App\Http\Controllers\front\BalanceController;
@@ -61,8 +63,11 @@ Route::get('/question', [ExamController::class, 'question'])->middleware('isStud
 Route::get('/cat/{slug?}', [HomeController::class, 'category'])->middleware('isStudentAdmin')->name('category');
 Route::get('/lesson/{slug?}', [HomeController::class, 'lesson'])->middleware('isStudentAdmin')->name('single_lesson');
 Route::post('/share', [HomeController::class, 'share'])->middleware('isStudentAdmin')->name('post_share');
+Route::get('/shares', [HomeController::class, 'shares'])->middleware('isStudentAdmin')->name('shares');
 Route::get('/share/{id?}', [StudentLoginController::class, 'share'])->middleware('isStudentAdmin')->name('share');
-Route::post('/share_edit/{id?}', [StudentLoginController::class, 'share_edit_post'])->middleware('isStudentAdmin')->name('share.edit.post');
+Route::put('/share_edit/{id?}', [StudentLoginController::class, 'share_edit_post'])->middleware('isStudentAdmin')->name('share.edit.post');
+Route::get('/share_delete/{id?}', [StudentLoginController::class, 'share_delete'])->middleware('isStudentAdmin')->name('share.delete');
+Route::get('/share_photo_delete/{id?}', [StudentLoginController::class, 'share_photo_delete'])->middleware('isStudentAdmin')->name('share.photo.delete');
 Route::get('/mesajs', [MesajController::class, 'sms'])->middleware('isStudentAdmin')->name('sms');
 Route::get('/mesaj_user/{id?}', [MesajController::class, 'sms_user'])->middleware('isStudentAdmin')->name('sms.user');
 Route::post('/post_mesaj', [MesajController::class, 'post_sms'])->middleware('isStudentAdmin')->name('post.mesaj');
@@ -98,6 +103,29 @@ Route::prefix('cms')->middleware('isAdmin')->group(function () {
     Route::get('/user_reports/test_report_user', [TestReportController::class, 'test_report_user'])->name('test.report.users');
 
   //Route::get('/groups', [GroupController::class, 'groups'])->name('groups');
+
+  // KURS
+
+  Route::prefix('/kurs')->group(function () {
+    Route::get('/', [KursController::class, 'kurs'])->name('kurs');
+    Route::get('/new_kurs', [KursController::class, 'kurs_add'])->name('new.kurs');
+    Route::post('/new_kurs_post', [KursController::class, 'kurs_insert'])->name('post_kurs');
+    Route::get('/edit_kurs/{id?}', [KursController::class, 'kurs_edit'])->name('kurs.edit');
+    Route::post('/edit_kurs_post/{id?}', [KursController::class, 'kurs_update'])->name('kurs_edit_post');
+
+    //KURS CATEGORY
+    Route::get('/kurs_category', [KursCategoryController::class, 'kurscategories'])->name('kurs_cat');
+    Route::get('/kurs_add_category', [KursCategoryController::class, 'kurscategory_add'])->name('kurs.new_cat');
+    Route::post('/kurs_add_category', [KursCategoryController::class, 'kurscategory_post'])->name('kurs.post_cat');
+    Route::get('/kurs_category_edit/{id?}', [KursCategoryController::class, 'kurscat_edit'])->name('kurs.cat_edit');
+    Route::post('/kurs_category_edit/{id?}', [KursCategoryController::class, 'kurscat_update'])->name('kurs.cat_edit_post');
+    Route::get('/kurs_category_trashed', [KursCategoryController::class, 'kurscat_trashed'])->name('kurs.cat_trashed');
+    Route::get('/kurs_category_delete/{id?}', [KursCategoryController::class, 'kurscat_delete'])->name('kurs.cat_delete');
+    Route::get('/kurs_category_restore/{id?}', [KursCategoryController::class, 'kurscat_restore'])->name('kurs.cat_restore');
+    Route::get('/kurs_category_destroy/{id?}', [KursCategoryController::class, 'kurscat_destroy'])->name('kurs.cat_destroy');
+    Route::delete('/kurs_category_alldelete', [KursCategoryController::class, 'kurscat_alldelete'])->name('kurs.cat_all_delete');
+    Route::delete('/kurs_category_trashed_delete', [KursCategoryController::class, 'kurscat_trashed_delete'])->name('kurs.cat_trashed_delete');
+  });
     
     // SYSTEM DAHBOARD
     Route::prefix('/system')->group(function () {

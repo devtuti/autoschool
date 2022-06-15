@@ -28,17 +28,18 @@
     <div class="content">
       <div class="container-fluid">
         <div class="row">
+        @if($last_test)
           <div class="col-lg-6">
 
             <div class="card">
               <div class="card-body">
 
-
-              <p class="text-center">
+                    <p class="text-center">
                       <strong>User test correct count</strong>
                     </p>
 
                     <div class="progress-group">
+                      
                       {{$last_test->cat_name}}
                       <span class="float-right"><b>{{$last_test->correct_percent}}%</b>/{{$last_test->correct_count}}</span>
                       <div class="progress progress-sm">
@@ -48,10 +49,10 @@
                     <!-- /.progress-group -->
            
                   <p class="card-text"><i>{{$last_test->created_at}}</i></p>
-               
+                    
               </div>
             </div>
-
+            
 
 
             <div class="card card-primary card-outline">
@@ -90,7 +91,7 @@
               <!-- /.card-body -->
             </div>
             <!-- /.card -->
-
+            
 
             <div class="card card-primary card-outline">
              
@@ -101,9 +102,15 @@
                 <p class="card-text"></p>
               </div>
             </div><!-- /.card -->
+
           </div>
+          @endif
           <!-- /.col-md-6 -->
+          @if($last_test)
           <div class="col-lg-6">
+          @else
+          <div class="col-lg-12">
+          @endif
             <div class="card">
               <div class="card-header">
                 <h5 class="m-0">Paylasin</h5>
@@ -138,26 +145,33 @@
               </form>
            
               <div class="card-body">
+                <ul id="updateform_errorlist"></ul>
+                <div id="success_message"></div>
                 <div class="tab-content">
                   <div class="active tab-pane" id="activity">
                   @foreach($shares as $share)
                     <!-- Post -->
-                    <div class="post">
+                    <div class="post" id="sid{{$share->sh_id}}">
                       <div class="user-block">
                         <img class="img-circle img-bordered-sm" src="{{asset('users/'.$share->u_photo)}}" alt="user image">
                         <span class="username">
                           <a href="#">{{$share->name}}.</a>
-                          <a href="#" class="float-right btn-tool"><i class="fas fa-times"></i></a>
+                          <a href="javascript:void(0);" class="float-right btn-tool" onclick='return share_delete("{{$share->sh_id}}");'><i class="fas fa-times"></i></a>
                         </span>
                         <span class="description">{{$share->sh_date}}</span>
                       </div>
                       <!-- /.user-block -->
                       @if(!empty($share->photo))
+                        @if(File::exists("shares/".$share->photo))
                       <div class="row mb-3">
                         <div class="col-sm-6">
                           <img class="img-fluid" src="{{asset('shares/'.$share->photo)}}" alt="Photo">
                         </div>
+                        <div class="col-sm-1">
+                          <a href="javascript:void(0);" onclick='return share_photo_delete("{{$share->sh_id}}");' class="float-right btn-tool"><i class="fas fa-times"></i></a>
+                        </div>
                       </div>
+                      @endif
                       @endif
                       <p>
                         {!! $share->content_text !!}
@@ -165,7 +179,7 @@
 
                       <p>
                         <a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-1"></i> Like</a>
-                        <a href="javascript:void(0);" class="link-black text-sm" onclick='return shares("{{$share->sh_id}}");'>/ Edit</a>
+                        <a href="javascript:void(0);" class="link-black text-sm" onclick='return shares("{{$share->sh_id}}");'> Edit</a>
                         <span class="float-right">
                           <a href="#" class="link-black text-sm">
                             <i class="far fa-comments mr-1"></i> Comments (5)
@@ -173,14 +187,15 @@
                         </span>
                       </p>
 
-                      <form class="form-horizontal" enctype="multipart/form-data" method="post" action="" id="form">
+                      <form class="form-horizontal" id="formshare" action="" method="">
                         @csrf
-                       
+                        <input type="hidden" id="share_edit{{$share->sh_id}}">
                         <div class="input-group input-group-sm mb-0">
-                          <input class="form-control form-control-sm" id="sh{{$share->sh_id}}" placeholder="Response" name="content_text">
+                          <input type="text" class="form-control form-control-sm" id="sh{{$share->sh_id}}" placeholder="Response">
                           <div class="input-group-append">
                             <button type="submit" class="btn btn-danger">Send</button>
                           </div>
+                          <span class="text-danger error-text share_post_error"></span>
                         </div>
                       </form>
                     </div>
@@ -206,6 +221,11 @@
 @section('js')
 <script src="{{asset('front/plugins/summernote/summernote-bs4.min.js')}}"></script>
 <script>
+  $(function () {
+        // Summernote
+        $('#summernote').summernote();
+  });
+  
   // Share edit view
   function shares(id){
         $.ajax({
@@ -214,16 +234,55 @@
            data:{id:id},
            cache:false,
             success: function(data){ 
-              document.getElementById("sh".id).value = data;
-                
+            document.getElementById("sh"+id).name = 'content_text';
+            document.getElementById("sh"+id).value = data;
+            document.getElementById("share_edit"+id).name = 'share_edit';
+            document.getElementById("share_edit"+id).value = id;
            }
        });
     }
 
-  $(function () {
-    // Summernote
-    $('#summernote').summernote();
+    // Share delete
+  function share_delete(id){
+    if(confirm("Silmeye eminsiniz??")){
+      $.ajax({
+           url: "{{route('share.delete')}}/"+id,
+           type:"GET",
+           data:{
+             id:id
+           },
+           dataType:'json',
+           cache:false,
+            success: function(response){ 
+              $("#sid"+id).remove();
+           }
+       });
+    }
+        
+    }
 
+    // share photo delete 
+
+    function share_photo_delete(id){
+    if(confirm("Silmeye eminsiniz??")){
+      $.ajax({
+           url: "{{route('share.photo.delete')}}/"+id,
+           type:"GET",
+           data:{
+             id:id
+           },
+           dataType:'json',
+           cache:false,
+            success: function(response){ 
+              
+                $("#sid"+id).remove();
+             
+           }
+       });
+    }
+        
+    }
+    $(document).ready(function(){
     // ajax insert share
 
     $('#form').on('submit', function(e){
@@ -253,9 +312,43 @@
           }else{
             $(form)[0].reset();
             $(".tab-pane").html(data.msg);
+            //fetchAllShares();
+        
           }
         }
       });
+    });
+
+      // share edit
+      
+      $('#formshare').on('submit', function(e){
+      e.preventDefault(); 
+      var sh_edit = $('input[name=share_edit]').val();
+      //alert(sh_edit);
+      var formshare = this; 
+      
+      $.ajax({
+        url: "{{route('share.edit.post')}}"+sh_edit,
+        type: "PUT",
+        data:new FormData(formshare),
+        dataType:'json', 
+        success:function(response){
+          if(response.status==400){
+            $('#updateform_errorlist').html("");
+            $('#updateform_errorlist').addClass('alert alert-danger');
+            $.each(response.errors, function(key,err_values){
+              $('#updateform_errorlist').append('<li>'+err_values+'</li>');
+            });
+          }else{
+            $('#updateform_errorlist').html("");
+            $('#success_message').html("");
+            $('#success_message').addClass('alert alert-success');
+            $('#success_message').text(response.message);
+
+          }
+        }
+      });
+    });
 
         //reset input file
       $('input[type="file"][name="share_photo"]').val('');
@@ -265,17 +358,16 @@
         var image_holder = $('.img-holder');
         var extension = img_path.substring(img_path.lastIndexOf('.')+1).toLowerCase();
         //alert(extension);
-      })
-
-    });
-
-    /*function fetchAllShares(){
-      $.get('{{route("home")}}',{},function(shares){
-        $('').html(shares);
       });
+
+    /*fetchAllShares();
+    function fetchAllShares(){
+      $.get('{{route("shares")}}',{},function(data){
+        $('#activity').html(data.result);
+      },'json');
     }*/
-    
-  })
+  });
+  
 </script>
 @endsection
 

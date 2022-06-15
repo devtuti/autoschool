@@ -167,7 +167,11 @@ return [
         'amount'=>'Amount',
         'from'=>'Ilk tarix araligi',
         'to'=>'Son tarix araligi',
-
+        'content_text' => 'Content Text',
+        'kurs_name'=>'Kurs name',
+        'kurs_content'=>'Kurs content',
+        'price'=>'Price',
+        'status'=>'Status',
     ],
 
 ];

@@ -34,43 +34,26 @@ class TestReportController extends Controller
 
     public function test_report_user(Request $request){
         $g_name = $request->groups;
-        $group = DB::table('group_user')
+        /*$group = DB::table('group_user')
                 ->join('users','group_user.user_id','=','users.id')
                 ->select('group_user.*','users.*','group_user.id as g_u_id')
                 ->where('group_user.group_id','=',$g_name)
                 ->get();
         foreach($group as $g){
-            $user_id = $g->user_id;
+            $user_id = $g->user_id;*/
 
-            $user_correct_count = DB::table('test_user_answers')
-                ->select('test_user_answers.created_at as user_date',DB::raw('COUNT(question_id) AS user_correct_count'))  // user_id yazilmamalidir countda
-                ->join('test_questions', 'test_questions.id', '=', 'test_user_answers.question_id')
-                ->where('test_user_answers.user_id', '=', $user_id)
-                ->where('test_questions.correct_answer', '=', 'test_user_answers.answer')
-                ->groupBy('test_questions.cat_id')
-                ->get();
-            foreach($user_correct_count as $c){
-                $cats = DB::table('categories')->where('id','=',$c->cat_id)->get();
-            }
+            $user_resultats = DB::table('user_resultats')
+                                ->join('users','users.id','=','user_resultats.user_id')
+                                ->join('categories','categories.id','=','user_resultats.cat_id')
+                                ->join('group_user','group_user.user_id','user_resultats.user_id')
+                                ->select('user_resultats.*','users.name','categories.cat_name', 'group_user.user_id', 'group_user.group_id', 'user_resultats.created_at as user_r_date')
+                                ->where('group_user.group_id','=',$g_name);
+                                return response()->json([
+                                    'user_resultats'=>$user_resultats
+                                    
+                                ]);
+           // }
             
-            $question_correct_count = DB::table('test_questions')
-                            ->select(DB::raw('COUNT(id) AS question_correct_count'))
-                            ->groupBy('test_questions.cat_id')
-                            ->get();
-            foreach($user_correct_count as $u_c_c){
-                foreach($question_correct_count as $q_c_c){
-                    $u_c =$u_c_c->user_correct_count;
-                    $q_c = $q_c_c->question_correct_count;
-                    $faiz = ($u_c*100)/$q_c;
-                }
-            }
-            
-        }
-        return response()->json([
-            'group'=>$group
-            /*'cats'=>$cats,
-            'faiz'=>$faiz,
-            'user_correct_count'=>$user_correct_count*/
-        ]);
+        
     }
 }

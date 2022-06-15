@@ -132,7 +132,7 @@
                         @csrf
                         <input type="hidden" value="{{$share->sh_id}}" name="share_id">
                         <div class="input-group input-group-sm mb-0">
-                          <input class="form-control form-control-sm" id="sh" placeholder="Response" name="content_text">
+                          <input class="form-control form-control-sm" id="sh{{$share->sh_id}}" placeholder="Response" name="content_text">
                           <div class="input-group-append">
                             <button type="submit" class="btn btn-danger">Send</button>
                           </div>
@@ -294,15 +294,14 @@
     }
 
     function shares(id){
-        //alert(id);
-        //return true;
+        
         $.ajax({
            url: "{{route('share')}}",
            method:"GET",
            data:{id:id},
            cache:false,
             success: function(data){ 
-              document.getElementById("sh").value = data;
+              document.getElementById("sh"+id).value = data;
                 
            }
        });

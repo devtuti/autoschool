@@ -32,9 +32,9 @@ class CategoryController extends Controller
     }
 
     public function categories(){
-        $grade_count = DB::table('admins')->where('grade', '=','0')->count();
+        //$grade_count = DB::table('admins')->where('grade', '=','0')->count();
         $categories= Category::with('children')->paginate(10);
-        return view('back.system.cat_list',compact('grade_count', 'categories'));
+        return view('back.system.cat_list',compact('categories'));
     }
 
     public function category_add(){
@@ -108,7 +108,7 @@ class CategoryController extends Controller
 
     public function cat_restore($id){
         Category::onlyTrashed()->find($id)->restore();
-        return redirect()->back();
+        return redirect()->route('cat');
     }
 
     public function cat_destroy($id){

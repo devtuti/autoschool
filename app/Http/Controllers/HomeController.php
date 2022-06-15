@@ -160,6 +160,17 @@ class HomeController extends Controller
         
     }
 
+    /*public function shares(){
+        $shares = DB::table('shares')
+                    ->join('users','users.id','=','shares.user_id')
+                    ->select('users.name','users.id', 'users.photo','shares.*', 'users.photo as u_photo','shares.created_at as sh_date','shares.id as sh_id')
+                    ->where('user_id', Auth::user()->id)
+                    ->orderBy('shares.created_at','desc')
+                    ->get();
+        $data = \View::make('front.all_shares')->with('shares',$shares)->render();
+        return response()->json(['code'=>1,'result'=>data]);
+    }*/
+
     public function category($slug){
         //$categories = Category::where('sub_id', 0)->with('children')->get();
 
