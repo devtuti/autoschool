@@ -23,6 +23,7 @@
 
                   <div class="table-responsive">
                   <a class="navbar-brand" href="{{route('test.reports')}}">Test reports</a>
+                  <a class="navbar-brand" href="{{route('test.kurs.reports')}}">Test in the course reports</a>
                   <a class="navbar-brand" href="{{route('test.reports')}}">Exam reports</a>
                   </div>
                   

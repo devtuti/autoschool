@@ -56,4 +56,23 @@ class TestReportController extends Controller
             
         
     }
+
+    public function test_kurs_reports(){
+        $user_answers = DB::table('user_kurs_answers')
+                        ->join('users','users.id', '=','user_kurs_answers.user_id')
+                        ->join('kurs_questions','kurs_questions.id','=','user_kurs_answers.question_id')
+                        ->select('user_kurs_answers.*','users.id','users.name','kurs_questions.id','kurs_questions.question_name','kurs_questions.correct_answer','user_kurs_answers.id as u_k_a_id')
+                        ->orderBy('created_at','desc')
+                        ->get();
+        return view('back.user_kurs_reports',compact('user_answers'));
+    }
+
+    public function kurs_question_look($id){
+        $question = DB::table('user_kurs_answers')
+                    ->join('kurs_questions','kurs_questions.id','=','user_kurs_answers.question_id')
+                    ->select('user_kurs_answers.question_id','user_kurs_answers.answer','kurs_questions.*')
+                    ->where('kurs_questions.id','=',$id)
+                    ->first();
+        return view('back.kurs_question_look',compact('question'));
+    }
 }

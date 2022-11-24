@@ -70,20 +70,27 @@ class HomeController extends Controller
                     ->where('grade','=','2')
                     ->where('status','=','1')
                     ->get();
-        $shares = DB::table('shares')
+       /* $comments_count = DB::table('comments')  
+                            ->select(DB::raw('count(*) as com_count'))        
+                            ->groupBy('comments.share_id')
+                            ->get();*/
+
+        /*$shares = DB::table('shares')
                     ->join('users','users.id','=','shares.user_id')
                     ->select('users.name','users.id', 'users.photo','shares.*', 'users.photo as u_photo','shares.created_at as sh_date','shares.id as sh_id')
                     ->where('user_id', $user_id)
                     ->orderBy('shares.created_at','desc')
-                    ->get();
+                    ->get();*/
         /*
         Suallari category gore qruplayib sayi 100%.
         hemin category gore qruplanmiw test_questions id beraber olmalidi test_user_answer.question_id ve user_id=giren usere
         ordan cixan answer_id beraber olmalidi test_answers.a_id 
         where test_answers.correct_answer=1
     */
-        return view('front.home', compact('teachers','last_test','hit','shares'));
+        return view('front.home', compact('teachers','last_test','hit'));
     }
+
+
 
     public function share(Request $request){
         if(!empty($request->share_photo) and !empty($request->share_post) and isset($request->teacher)){
@@ -160,16 +167,43 @@ class HomeController extends Controller
         
     }
 
-    /*public function shares(){
-        $shares = DB::table('shares')
+    public function shares(){
+        $user_id = Auth::user()->id;
+        $data['posts'] = DB::table('shares')
+                    ->join('users','users.id','=','shares.user_id')
+                    ->select('users.name','users.id', 'users.photo','shares.*', 'users.photo as u_photo','shares.created_at as sh_date','shares.id as sh_id')
+                    ->groupBy('shares.id')
+                    ->orderBy('shares.created_at','desc')
+                    ->get();
+        $data['comments'] = DB::table('comments')
+                            ->where('sub_comment_id','=','0')
+                            ->orderBy('created_at','desc')
+                            ->get();
+        $data['comments_for_comment'] = DB::table('comments')
+                            ->where('sub_comment_id','>','0')
+                            ->orderBy('created_at','desc')
+                            ->get();
+        $data['count_comment'] = DB::table('comments')
+                                ->join('shares','shares.id','=','comments.share_id')
+                                ->select('shares.id','comments.share_id',DB::raw('count(comments.share_id) as count_com'))
+                                ->groupBy('shares.id')
+                                ->get();
+        $data['count_comment_subcomment'] = DB::table('comments')
+                               // ->join('shares','shares.id','=','comments.share_id')
+                                ->select('comments.sub_comment_id',DB::raw('count(comments.sub_comment_id) as count_subcom'))
+                                ->where('sub_comment_id','>','0')
+                                ->groupBy('comments.sub_comment_id')
+                                ->get();
+        return response()->json($data);
+       /* $shares = DB::table('shares')
                     ->join('users','users.id','=','shares.user_id')
                     ->select('users.name','users.id', 'users.photo','shares.*', 'users.photo as u_photo','shares.created_at as sh_date','shares.id as sh_id')
                     ->where('user_id', Auth::user()->id)
                     ->orderBy('shares.created_at','desc')
                     ->get();
         $data = \View::make('front.all_shares')->with('shares',$shares)->render();
-        return response()->json(['code'=>1,'result'=>data]);
-    }*/
+        return response()->json(['code'=>1,'result'=>data]);*/
+    }
 
     public function category($slug){
         //$categories = Category::where('sub_id', 0)->with('children')->get();

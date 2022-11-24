@@ -172,6 +172,8 @@ return [
         'kurs_content'=>'Kurs content',
         'price'=>'Price',
         'status'=>'Status',
+        'sh_edit'=>'Comment',
+        'sh_for_comment'=>'Share for Comment'
     ],
 
 ];

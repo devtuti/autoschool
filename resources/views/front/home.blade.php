@@ -5,6 +5,12 @@
 @endsection
 @section('css')
 <link rel="stylesheet" href="{{asset('front/plugins/summernote/summernote-bs4.min.css')}}">
+<style>
+  /* .edit_share{
+    display:none;
+  } */
+ 
+</style>
 @endsection
 
 @section('content')
@@ -27,9 +33,9 @@
     <!-- Main content -->
     <div class="content">
       <div class="container-fluid">
-        <div class="row">
+        <div class="col-md-12">
         @if($last_test)
-          <div class="col-lg-6">
+          <div class="col-lg-12">
 
             <div class="card">
               <div class="card-body">
@@ -107,7 +113,7 @@
           @endif
           <!-- /.col-md-6 -->
           @if($last_test)
-          <div class="col-lg-6">
+          <div class="col-lg-12">
           @else
           <div class="col-lg-12">
           @endif
@@ -149,63 +155,12 @@
                 <div id="success_message"></div>
                 <div class="tab-content">
                   <div class="active tab-pane" id="activity">
-                  @foreach($shares as $share)
-                    <!-- Post -->
-                    <div class="post" id="sid{{$share->sh_id}}">
-                      <div class="user-block">
-                        <img class="img-circle img-bordered-sm" src="{{asset('users/'.$share->u_photo)}}" alt="user image">
-                        <span class="username">
-                          <a href="#">{{$share->name}}.</a>
-                          <a href="javascript:void(0);" class="float-right btn-tool" onclick='return share_delete("{{$share->sh_id}}");'><i class="fas fa-times"></i></a>
-                        </span>
-                        <span class="description">{{$share->sh_date}}</span>
-                      </div>
-                      <!-- /.user-block -->
-                      @if(!empty($share->photo))
-                        @if(File::exists("shares/".$share->photo))
-                      <div class="row mb-3">
-                        <div class="col-sm-6">
-                          <img class="img-fluid" src="{{asset('shares/'.$share->photo)}}" alt="Photo">
-                        </div>
-                        <div class="col-sm-1">
-                          <a href="javascript:void(0);" onclick='return share_photo_delete("{{$share->sh_id}}");' class="float-right btn-tool"><i class="fas fa-times"></i></a>
-                        </div>
-                      </div>
-                      @endif
-                      @endif
-                      <p>
-                        {!! $share->content_text !!}
-                      </p>
-
-                      <p>
-                        <a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-1"></i> Like</a>
-                        <a href="javascript:void(0);" class="link-black text-sm" onclick='return shares("{{$share->sh_id}}");'> Edit</a>
-                        <span class="float-right">
-                          <a href="#" class="link-black text-sm">
-                            <i class="far fa-comments mr-1"></i> Comments (5)
-                          </a>
-                        </span>
-                      </p>
-
-                      <form class="form-horizontal" id="formshare" action="" method="">
-                        @csrf
-                        <input type="hidden" id="share_edit{{$share->sh_id}}">
-                        <div class="input-group input-group-sm mb-0">
-                          <input type="text" class="form-control form-control-sm" id="sh{{$share->sh_id}}" placeholder="Response">
-                          <div class="input-group-append">
-                            <button type="submit" class="btn btn-danger">Send</button>
-                          </div>
-                          <span class="text-danger error-text share_post_error"></span>
-                        </div>
-                      </form>
-                    </div>
-                    <!-- /.post -->
-                  @endforeach
+                  
                   </div>
                 </div>
               </div>
             </div>
-
+            
           </div>
           <!-- /.col-md-6 -->
           
@@ -218,30 +173,184 @@
   <!-- /.content-wrapper -->
   @endsection
 
+
+ 
+
 @section('js')
 <script src="{{asset('front/plugins/summernote/summernote-bs4.min.js')}}"></script>
 <script>
+  let user_url =  "{{asset('users/')}}";
+  let share_url =  "{{asset('shares/')}}";
+
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+  });
+
   $(function () {
         // Summernote
         $('#summernote').summernote();
   });
-  
+
+   function fetchAllShares(){
+      
+      $.ajax({
+        type:'GET',
+        dataType: 'json',
+        url: '{{route("home.share")}}',
+        success:function(response){
+          //console.log(value.content_text);
+          var data = ""
+          $.each(response['posts'], function(key, value){
+            data = data + "<div class='post' id='sid"+value.sh_id+"'>"
+            data = data +   '<div class="user-block">'
+            data = data +     '<img class="img-circle img-bordered-sm" src="'+user_url+'/'+value.u_photo+'" alt="user image">'
+            data = data +         '<span class="username">'
+            data = data +           '<a href="{{route('profile')}}">'+value.name+'</a>'
+            data = data +           '<a href="javascript:void(0);" class="float-right btn-tool" onclick="share_delete('+value.sh_id+')"><i class="fas fa-times"></i></a>'
+            data = data +         '</span>'
+            data = data +         '<span class="description">'+value.sh_date+'</span>'
+            data = data +    '</div>'
+            if(value.photo !=''){
+              var share_file = "shares/"+value.photo
+              if(share_file){
+              //if(File::exists("shares/"+value.photo)){
+                data = data + '<div class="row mb-3">'
+                data = data +   '<div class="col-sm-6">'
+                data = data +      '<img class="img-fluid" src="'+user_url+'/'+value.u_photo+'" alt="Photo">'
+                data = data +    '</div>'
+                data = data +    '<div class="col-sm-1">'
+                data = data +       '<a href="javascript:void(0);" onclick="share_photo_delete('+value.sh_id+')" class="float-right btn-tool"><i class="fas fa-times"></i></a>'
+                data = data +     '</div>'
+                data = data +  '</div>'
+              }
+            }
+
+                data = data + '<p>'+value.content_text+'</p>'
+                //data = data + '<p>'
+                data = data +    '<a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-1"></i>4 Like </a>'
+                data = data +    '<a href="javascript:void(0);" class="link-black text-sm share_edit" id="'+value.sh_id+'"> Edit</a>'
+            $.each(response['count_comment'], function(keyc, valuec){
+              if(value.sh_id==valuec.share_id){
+               
+                /* COMMENT COUNT   */
+                data = data +    '<span class="float-right">'
+                data = data +       '<a href="#" class="link-black text-sm">'
+                data = data +          '<i class="far fa-comments mr-1"></i> Comments ('+valuec.count_com+')'
+                data = data +       '</a>'
+                data = data +    '</span>'
+                //console.log(valuec.count_com);
+                $.each(response['comments'], function(keys, values){
+                  if(value.sh_id==values.share_id){
+                /* COMMENTS */
+                    data = data +   '<div class="user-block ml-3">'
+                    data = data +     '<img class="img-circle img-bordered-sm" src="'+user_url+'/'+value.u_photo+'" alt="user image">'
+                    data = data +         '<span class="username">'
+                    data = data +           '<a href="{{route('profile')}}">'+value.name+'</a>'
+                    data = data +           '<a href="javascript:void(0);" onclick="" class="float-right btn-tool mr-2"><i class="fas fa-times"></i></a>'
+                    data = data +         '</span>'
+                    data = data +         '<span class="description">'+values.created_at+'</span>'
+                    data = data +    '</div>'
+                    data = data + '<p class="ml-3">'+values.share_comment+'</p>'
+                
+                    data = data +    '<a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-2 ml-3 mb-2"></i>74 Like </a>'
+                    data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" onclick=""> Edit</a>'
+                    data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" onclick="">Reply</a>'
+
+                    $.each(response['count_comment_subcomment'], function(keycsub, valuecsub){
+                      if(values.id==valuecsub.sub_comment_id){
+                
+                        /* FOR COMMENT COUNT   */
+                        data = data +    '<span class="float-right">'
+                        data = data +       '<a href="#" class="link-black text-sm">'
+                        data = data +          '<i class="far fa-comments mr-1"></i> Comments ('+valuecsub.count_subcom+')'
+                        data = data +       '</a>'
+                        data = data +    '</span>'
+
+                        $.each(response['comments_for_comment'], function(key_f_c, value_for_comment){
+                          if(values.id==value_for_comment.sub_comment_id){
+                        /* COMMENTS FOR COMMENT */
+                        data = data +   '<div class="user-block ml-5">'
+                        data = data +     '<img class="img-circle img-bordered-sm" src="'+user_url+'/'+value.u_photo+'" alt="user image">'
+                        data = data +         '<span class="username">'
+                        data = data +           '<a href="{{route('profile')}}">'+value.name+'</a>'
+                        data = data +           '<a href="javascript:void(0);" onclick="" class="float-right btn-tool mr-3"><i class="fas fa-times"></i></a>'
+                        data = data +         '</span>'
+                        data = data +         '<span class="description">'+value_for_comment.created_at+'</span>'
+                        data = data +    '</div>'
+                        data = data + '<p class="ml-5">'+value_for_comment.share_comment+'</p>'
+                    
+                        data = data +    '<a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-2 ml-5 mb-2"></i>28 Like </a>'
+                        data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" onclick=""> More</a>'
+
+                        
+                       
+                      }
+                    });
+                  }
+                });
+                  }
+                });
+              }
+            });
+                
+                //data = data +  '</p>'
+                data = data +    '<div class="input-group input-group-sm mb-2" style="display:none;" id="sh_edit'+value.sh_id+'">'
+                data = data +      '<input type="text" class="form-control form-control-sm" id="sh'+value.sh_id+'" placeholder="Response">'
+                data = data +      '<div class="input-group-append">'
+                data = data +         '<button type="submit" class="btn btn-danger" onclick="share_updated('+value.sh_id+')">Send</button>'
+                data = data +      '</div>'
+                data = data +        '<span class="text-danger error-text" id ="share_post_error"></span>'
+                data = data +     '</div>'
+             
+                //data = data +    '<input type="hidden" id="sh_id" name="sh_id" value="'+value.sh_id+'">'
+                data = data +    '<div class="input-group input-group-sm mb-0 share_com" id="sh_com'+value.sh_id+'">'
+                data = data +      '<input type="text" class="form-control form-control-sm" id="sh_for_comment'+value.sh_id+'" placeholder="Response" name="content_text[]">'
+                data = data +      '<div class="input-group-append">'
+                data = data +         '<button type="submit" class="btn btn-danger" onclick="share_for_comment()">Send</button>'
+                data = data +      '</div>'
+                data = data +      '<span class="text-danger error-text" id ="share_post_error"></span>'
+                data = data +    '</div>'
+              
+                data = data + '</div>'
+            
+            
+            
+            /*$.each(response['comments'], function(keys, values){
+              if(value.sh_id==values.share_id){
+                console.log(value.name);
+                console.log(values.share_comment);
+                
+              }
+           
+            });*/
+          });
+          $('#activity').html(data);
+        }
+
+      }).done(function() {
   // Share edit view
-  function shares(id){
-        $.ajax({
-           url: "{{route('share')}}",
+          document.querySelector('.share_edit').addEventListener("click", function(event){
+          let sh_id = event.target.id
+          $.ajax({
+           url: "{{route('share')}}/"+sh_id,
            method:"GET",
-           data:{id:id},
+           data:{id:sh_id},
            cache:false,
-            success: function(data){ 
-            document.getElementById("sh"+id).name = 'content_text';
-            document.getElementById("sh"+id).value = data;
-            document.getElementById("share_edit"+id).name = 'share_edit';
-            document.getElementById("share_edit"+id).value = id;
+            success: function(response){ 
+            
+                //$('#sh_edit'+sh_id).css("display","inline");
+                document.querySelector('#sh_edit'+sh_id).removeAttribute("style");
+                document.getElementById("sh"+sh_id).value = response;
+              
            }
        });
+     })
+      });
     }
-
+     fetchAllShares();
+   
     // Share delete
   function share_delete(id){
     if(confirm("Silmeye eminsiniz??")){
@@ -255,15 +364,18 @@
            cache:false,
             success: function(response){ 
               $("#sid"+id).remove();
+              fetchAllShares();
            }
        });
     }
         
     }
 
+
+
     // share photo delete 
 
-    function share_photo_delete(id){
+  function share_photo_delete(id){
     if(confirm("Silmeye eminsiniz??")){
       $.ajax({
            url: "{{route('share.photo.delete')}}/"+id,
@@ -276,23 +388,24 @@
             success: function(response){ 
               
                 $("#sid"+id).remove();
+                fetchAllShares();
              
            }
        });
     }
         
     }
-    $(document).ready(function(){
-    // ajax insert share
+
+    
+
+
+        // ajax insert share
+  $(document).ready(function(){
 
     $('#form').on('submit', function(e){
       e.preventDefault();
       var form = this; 
-      $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-      });
+      
       $.ajax({
         url:$(form).attr('action'),
         type:$(form).attr('method'),
@@ -301,32 +414,72 @@
         contentType:false,
         cache:false,
         processData:false,
-        beforeSend:function(){
-          $(form).find('span.error-text').text('');
-        },
+                  /*beforeSend:function(){
+                    $(form).find('span.error-text').text('');
+                  },*/
         success:function(data){
-         if(data.code==0){
-            $.each(data.error, function(prefix,val){
-              $(form).find('span.'+prefix+'_error').text(val[0]);
-            });
-          }else{
-            $(form)[0].reset();
-            $(".tab-pane").html(data.msg);
-            //fetchAllShares();
-        
+                if(data.code==0){
+                    /*$.each(data.error, function(prefix,val){
+                      $(form).find('span.'+prefix+'_error').text(val[0]);
+                    });*/
+                  }else{
+                    $(form)[0].reset();
+                    $(".tab-pane").html(data.msg);
+                    fetchAllShares();
+            //console.log('successfuly added');
           }
         }
       });
     });
+  });
 
       // share edit
+
+    function share_updated(id){
+      var sh_edit = $('#sh'+id).val();
+      //var sh_for_comment = $('input[name=content_text]').val();
+        $.ajax({
+          type: "PUT",
+          dataType:'json', 
+          data:{sh_edit:sh_edit},
+          url: "{{route('share.edit.post')}}/"+id,
+          success:function(response){
+            fetchAllShares();
       
-      $('#formshare').on('submit', function(e){
+          },
+          error:function(error){
+            $('#share_post_error').text(error.responseJSON.errors.sh_edit);
+          }
+        });
+
+      
+    }
+
+    function share_for_comment(){
+      var sh_id = $('input[name=sh_id]').val();
+      var sh_for_comment = $('input[name=content_text]').val();
+
+      $.ajax({
+        type: "POST",
+        dataType:'json', 
+        data:{sh_id:sh_id, sh_for_comment:sh_for_comment},
+        url: "{{route('share.comment.post')}}",
+        success:function(response){
+          fetchAllShares();
+    
+        },
+        error:function(error){
+          console.log(error);
+          $('#share_post_error').text(error.responseJSON.errors.sh_for_comment);
+        }
+      });
+    }
+
+    /*$('#formshare').on('submit', function(e){
       e.preventDefault(); 
       var sh_edit = $('input[name=share_edit]').val();
-      //alert(sh_edit);
       var formshare = this; 
-      
+      alert(sh_edit);
       $.ajax({
         url: "{{route('share.edit.post')}}"+sh_edit,
         type: "PUT",
@@ -344,29 +497,18 @@
             $('#success_message').html("");
             $('#success_message').addClass('alert alert-success');
             $('#success_message').text(response.message);
+            fetchAllShares();
 
           }
         }
       });
-    });
 
-        //reset input file
-      $('input[type="file"][name="share_photo"]').val('');
-      //image preview
-      $('input[type="file"][name="share_photo"]').on('change',function(){
-        var image_path = $(this)[0].value;
-        var image_holder = $('.img-holder');
-        var extension = img_path.substring(img_path.lastIndexOf('.')+1).toLowerCase();
-        //alert(extension);
-      });
 
-    /*fetchAllShares();
-    function fetchAllShares(){
-      $.get('{{route("shares")}}',{},function(data){
-        $('#activity').html(data.result);
-      },'json');
-    }*/
-  });
+    });*/
+
+
+    
+  
   
 </script>
 @endsection

@@ -20,11 +20,16 @@ use \App\Http\Controllers\back\ReportController;
 use \App\Http\Controllers\back\TestReportController;
 use \App\Http\Controllers\back\KursController;
 use \App\Http\Controllers\back\KursCategoryController;
+use \App\Http\Controllers\back\KursLessonController;
+use \App\Http\Controllers\back\KursQuestionController;
+use \App\Http\Controllers\back\KursUserController;
 use \App\Http\Controllers\front\StudentRegisterController;
 use \App\Http\Controllers\front\StudentLoginController;
 use \App\Http\Controllers\front\BalanceController;
 use \App\Http\Controllers\front\ExamController;
+use \App\Http\Controllers\front\FrontKursController;
 use \App\Http\Controllers\front\MesajController;
+use \App\Http\Controllers\front\CommentsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,11 +59,13 @@ Route::get('/profile/question/{id?}', [StudentLoginController::class, 'user_ques
 //Route::get('/profile_edit/{id?}', [StudentLoginController::class, 'edit'])->middleware('isStudentAdmin')->name('profile.edit');
 Route::post('/post_profile_edit/{id?}', [StudentLoginController::class, 'edit_post'])->middleware('isStudentAdmin')->name('post.edit.profile');
 Route::get('/home', [HomeController::class, 'index'])->middleware('isStudentAdmin')->name('home');
+Route::get('/home/share', [HomeController::class, 'shares'])->middleware('isStudentAdmin')->name('home.share');
 Route::get('/balance', [BalanceController::class, 'balance'])->middleware('isStudentAdmin')->name('balance');
 Route::get('/payment', [BalanceController::class, 'payment'])->middleware('isStudentAdmin')->name('payment');
 Route::post('/amount', [BalanceController::class, 'amount'])->middleware('isStudentAdmin')->name('post_amount');
 Route::get('/exam', [ExamController::class, 'exam'])->middleware('isStudentAdmin')->name('exam');
 Route::post('/exam', [ExamController::class, 'exam_post'])->middleware('isStudentAdmin')->name('exam_post');
+Route::get('/course', [FrontKursController::class, 'kurs'])->middleware('isStudentAdmin')->name('course');
 Route::get('/question', [ExamController::class, 'question'])->middleware('isStudentAdmin')->name('question');
 Route::get('/cat/{slug?}', [HomeController::class, 'category'])->middleware('isStudentAdmin')->name('category');
 Route::get('/lesson/{slug?}', [HomeController::class, 'lesson'])->middleware('isStudentAdmin')->name('single_lesson');
@@ -68,6 +75,7 @@ Route::get('/share/{id?}', [StudentLoginController::class, 'share'])->middleware
 Route::put('/share_edit/{id?}', [StudentLoginController::class, 'share_edit_post'])->middleware('isStudentAdmin')->name('share.edit.post');
 Route::get('/share_delete/{id?}', [StudentLoginController::class, 'share_delete'])->middleware('isStudentAdmin')->name('share.delete');
 Route::get('/share_photo_delete/{id?}', [StudentLoginController::class, 'share_photo_delete'])->middleware('isStudentAdmin')->name('share.photo.delete');
+Route::post('/share_for_comment', [CommentsController::class, 'share_for_comment'])->middleware('isStudentAdmin')->name('share.comment.post');
 Route::get('/mesajs', [MesajController::class, 'sms'])->middleware('isStudentAdmin')->name('sms');
 Route::get('/mesaj_user/{id?}', [MesajController::class, 'sms_user'])->middleware('isStudentAdmin')->name('sms.user');
 Route::post('/post_mesaj', [MesajController::class, 'post_sms'])->middleware('isStudentAdmin')->name('post.mesaj');
@@ -102,6 +110,9 @@ Route::prefix('cms')->middleware('isAdmin')->group(function () {
     Route::get('/user_reports/test_reports', [TestReportController::class, 'test_reports'])->name('test.reports');
     Route::get('/user_reports/test_report_user', [TestReportController::class, 'test_report_user'])->name('test.report.users');
 
+    Route::get('/user_reports/test_kurs_reports', [TestReportController::class, 'test_kurs_reports'])->name('test.kurs.reports');
+    Route::get('/user_reports/kurs_question_look/{id?}', [TestReportController::class, 'kurs_question_look'])->name('kurs.question.look');
+
   //Route::get('/groups', [GroupController::class, 'groups'])->name('groups');
 
   // KURS
@@ -125,6 +136,35 @@ Route::prefix('cms')->middleware('isAdmin')->group(function () {
     Route::get('/kurs_category_destroy/{id?}', [KursCategoryController::class, 'kurscat_destroy'])->name('kurs.cat_destroy');
     Route::delete('/kurs_category_alldelete', [KursCategoryController::class, 'kurscat_alldelete'])->name('kurs.cat_all_delete');
     Route::delete('/kurs_category_trashed_delete', [KursCategoryController::class, 'kurscat_trashed_delete'])->name('kurs.cat_trashed_delete');
+
+    // KURS LESSONS
+    Route::get('/kurs_lesson', [KursLessonController::class, 'kurs_lessons'])->name('kurs_lesson');
+    Route::get('/kurs_add_lesson', [KursLessonController::class, 'kurs_lesson_add'])->name('kurs_new_lesson');
+    Route::post('/kurs_add_lesson', [KursLessonController::class, 'kurs_lesson_post'])->name('kurs_post_lesson');
+    Route::get('/kurs_lesson_edit/{id?}', [KursLessonController::class, 'kurs_lesson_edit'])->name('kurs_lesson_edit');
+    Route::post('/kurs_lesson_edit/{id?}', [KursLessonController::class, 'kurs_lesson_update'])->name('kurs_lesson_edit_post');
+    Route::get('/kurs_lesson_trashed', [KursLessonController::class, 'kurs_lesson_trashed'])->name('kurs_lesson_trashed');
+    Route::get('/kurs_lesson_delete/{id?}', [KursLessonController::class, 'kurs_lesson_delete'])->name('kurs_lesson_delete');
+    Route::get('/kurs_lesson_restore/{id?}', [KursLessonController::class, 'kurs_lesson_restore'])->name('kurs_lesson_restore');
+    Route::get('/kurs_lesson_destroy/{id?}', [KursLessonController::class, 'kurs_lesson_destroy'])->name('kurs_lesson_destroy');
+    Route::delete('/kurs_lesson_alldelete', [KursLessonController::class, 'kurs_lesson_alldelete'])->name('kurs_lesson_all_delete');
+    Route::delete('/kurs_lesson_trashed_delete', [KursLessonController::class, 'kurs_lesson_trashed_delete'])->name('kurs_lesson_trashed_delete');
+
+    // KURS QUESTION
+    Route::get('/kurs_question', [KursQuestionController::class, 'kurs_question'])->name('kurs_question');
+    Route::get('/add_kurs_question', [KursQuestionController::class, 'kurs_question_add'])->name('new_kurs_question');
+    Route::post('/add_kurs_question', [KursQuestionController::class, 'kurs_question_post'])->name('post_kurs_question');
+    Route::get('/kurs_question_edit/{id?}', [KursQuestionController::class, 'kurs_question_edit'])->name('kurs_question_edit');
+    Route::post('/kurs_question_edit/{id?}', [KursQuestionController::class, 'kurs_question_update'])->name('kurs_question_edit_post');
+    Route::get('/kurs_question_trashed', [KursQuestionController::class, 'kurs_question_trashed'])->name('kurs_question_trashed');
+    Route::get('/kurs_question_delete/{id?}', [KursQuestionController::class, 'kurs_question_delete'])->name('kurs_question_delete');
+    Route::get('/kurs_question_restore/{id?}', [KursQuestionController::class, 'kurs_question_restore'])->name('kurs_question_restore');
+    Route::get('/kurs_question_destroy/{id?}', [KursQuestionController::class, 'kurs_question_destroy'])->name('kurs_question_destroy');
+    Route::delete('/kurs_question_alldelete', [KursQuestionController::class, 'kurs_question_alldelete'])->name('kurs_question_all_delete');
+    Route::delete('/kurs_question_trashed_delete', [KursQuestionController::class, 'kurs_question_trashed_delete'])->name('kurs_question_trashed_delete');
+
+    // KURS USER PAYMENT
+    Route::get('/kurs_user', [KursUserController::class, 'kurs_user'])->name('kurs.user');
   });
     
     // SYSTEM DAHBOARD

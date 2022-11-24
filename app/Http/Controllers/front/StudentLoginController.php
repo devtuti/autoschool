@@ -80,18 +80,31 @@ class StudentLoginController extends Controller
         return $share->content_text;
     }
 
-    public function share_edit_post(Request $request){
+    public function share_edit_post(Request $request,$id){
+    
+            $request->validate([
+                'sh_edit' => 'required',
+            ]);
+            $data = Shares::findOrFail($id)->update([
+                'content_text'=>$request->sh_edit,         
+                'updated_at' => now()
+            ]);
+      
+            return response()->json($data);
+        
+        
+            
         /*$validation = [
             'content_text'=> 'required',
         ];
         $rules = validator($request->all(), $validation,[
             'min' => ':attribute sahesi minimum :min olmaldir'
-        ]);*/
+        ]);
         $validator = Validator::make($request->all(), [
             'content_text' =>'required',
         ]);
         if($validator->fails()){
-            //return redirect()->back()->withErrors($rules)->withInput();
+        
             return response()->json([
                 'status'=>400,
                 'errors'=>$validator->messages(),
@@ -106,7 +119,7 @@ class StudentLoginController extends Controller
                     'status'=>200,
                     'message'=>'Updated',
                 ]);
-        }
+        }*/
     }
 
     public function share_delete(Request $request){

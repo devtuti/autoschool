@@ -17,6 +17,9 @@
         <a href="{{route('exam')}}" class="nav-link">Exam</a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
+        <a href="{{route('course')}}" class="nav-link">Kurslar</a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
         <a href="{{route('sms')}}" class="nav-link">Mesaj</a>
       </li>
     </ul>

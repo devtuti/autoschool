@@ -66,6 +66,9 @@
               <div class="dropdown-menu">
                 <a class="dropdown-item  {{Route::is('kurs') ? 'active' : ''}}" href="{{route('kurs')}}">Kurs</a>
                 <a class="dropdown-item  {{Route::is('kurs_cat') ? 'active' : ''}}" href="{{route('kurs_cat')}}">Kurs Category</a>
+                <a class="dropdown-item  {{Route::is('kurs_lesson') ? 'active' : ''}}" href="{{route('kurs_lesson')}}">Kurs Lesson</a>
+                <a class="dropdown-item  {{Route::is('kurs_question') ? 'active' : ''}}" href="{{route('kurs_question')}}">Kurs Tests</a>
+                <a class="dropdown-item  {{Route::is('kurs.user') ? 'active' : ''}}" href="{{route('kurs.user')}}">User in the course</a>
               </div>
             </li>
 

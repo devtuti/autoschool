@@ -23,4 +23,9 @@ class KursCategory extends Model
     public function children(){
         return $this->hasMany(KursCategory::class, 'sub_id');
     }
+
+    public function lesson()
+    {
+        return $this->hasMany(KursLesson::class);
+    }
 }
