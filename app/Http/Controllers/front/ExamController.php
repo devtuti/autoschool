@@ -23,6 +23,7 @@ class ExamController extends Controller
         return view('front.exam', compact( 'questions'));
     }
 
+
     public function exam_post(Request $request){
         $payment = DB::table('payment')->where('user_id', Auth::user()->id)->first();
         $questions = DB::table('test_questions')->inRandomOrder()->limit(10)->get();

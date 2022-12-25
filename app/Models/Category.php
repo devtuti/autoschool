@@ -12,16 +12,16 @@ class Category extends Model
     use SoftDeletes;
     protected $fillable = ['cat_name', 'slug', 'sub_id', 'status', 'created_at', 'updated_at'];
 
-    protected $appends = [
+    /*protected $appends = [
         'parent'
     ];
 
     public function parent(){
         return $this->belongsTo(Category::class, 'sub_id');
-    }
+    }*/
 
     public function children(){
-        return $this->hasMany(Category::class, 'sub_id');
+        return $this->hasMany(Category::class, 'sub_id')->with('children');
     }
 
     public function lesson()

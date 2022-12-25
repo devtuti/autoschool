@@ -9,7 +9,7 @@ use App\Models\Admin;
 use App\Models\Category;
 use App\Models\GroupUsers;
 use App\Models\Jurnal;
-use App\Models\Shares;
+use App\Models\Share;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use File;
@@ -85,7 +85,7 @@ class StudentLoginController extends Controller
             $request->validate([
                 'sh_edit' => 'required',
             ]);
-            $data = Shares::findOrFail($id)->update([
+            $data = Share::findOrFail($id)->update([
                 'content_text'=>$request->sh_edit,         
                 'updated_at' => now()
             ]);
@@ -124,7 +124,7 @@ class StudentLoginController extends Controller
 
     public function share_delete(Request $request){
         $id = $request->id;
-        $share = Shares::find($id);
+        $share = Share::find($id);
         if(!empty($share->photo)){
             if(File::exists("shares/".$share->photo)){
                 File::delete("shares/".$share->photo);
@@ -139,7 +139,7 @@ class StudentLoginController extends Controller
 
     public function share_photo_delete(Request $request){
         $id = $request->id;
-        $share = Shares::find($id);
+        $share = Share::find($id);
         if(empty($share->content_text)){
             if(File::exists("shares/".$share->photo)){
                 File::delete("shares/".$share->photo);

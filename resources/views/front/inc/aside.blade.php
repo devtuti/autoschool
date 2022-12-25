@@ -51,11 +51,11 @@
             @if($group->group_id == $j->group_id)
             
               <li class="nav-item menu-open">
-                @if(count($cat->children)==0)
-                <a href="javascript:void(0);" class="nav-link {{Route::is('category') ? 'active' : ''}}">
-                  @else
+                
+                
+                 
                   <a href="{{route('category')}}/{{$cat->slug}}" class="nav-link @if(Route::is('category')) active @elseif(Route::is('tests')) active  @else '' @endif">
-                  @endif
+                  
                   <i class="nav-icon fas fa-copy"></i>
                   <p>
                   {{$cat->cat_name}}
@@ -65,14 +65,14 @@
               
                 <ul class="nav nav-treeview">
                 @foreach($cat->children as $c)
-                  @if($j->cat_id == $c->id)
+                  
                     <li class="nav-item">
                       <a href="{{route('category')}}/{{$c->slug}}" class="nav-link {{Route::is('category') ? 'active' : ''}}">
                         <i class="far fa-circle nav-icon"></i>
                         <p>{{$c->cat_name}}</p>
                       </a>
                     </li>
-                    @endif
+                  
                 @endforeach
                   </ul>
                             

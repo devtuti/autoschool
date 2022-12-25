@@ -8,7 +8,7 @@
 <style>
   /* .edit_share{
     display:none;
-  } */
+  }*/
  
 </style>
 @endsection
@@ -200,136 +200,165 @@ $.ajaxSetup({
         dataType: 'json',
         url: '{{route("home.share")}}',
         success:function(response){
-          //console.log(value.content_text);
+          console.log(response);
           var data = ""
-          $.each(response['posts'], function(key, value){
-            data = data + "<div class='post' id='sid"+value.sh_id+"'>"
+          $.each(response.share, function(key, value){
+            
+            data = data + "<div class='post' id='sid"+value.id+"'>"
             data = data +   '<div class="user-block">'
-            data = data +     '<img class="img-circle img-bordered-sm" src="'+user_url+'/'+value.u_photo+'" alt="user image">'
+            data = data +     '<img class="img-circle img-bordered-sm" src="'+user_url+'/'+value.user.photo+'" alt="user image">'
             data = data +         '<span class="username">'
-            data = data +           '<a href="{{route('profile')}}">'+value.name+'</a>'
-            data = data +           '<a href="javascript:void(0);" class="float-right btn-tool" onclick="share_delete('+value.sh_id+')"><i class="fas fa-times"></i></a>'
+            data = data +           '<a href="{{route('profile')}}">'+value.user.name+'</a>'
+            data = data +           '<a href="javascript:void(0);" class="float-right btn-tool" onclick="share_delete('+value.id+')"><i class="fas fa-times"></i></a>'
             data = data +         '</span>'
-            data = data +         '<span class="description">'+value.sh_date+'</span>'
+            data = data +         '<span class="description">'+value.created_at+'</span>'
             data = data +    '</div>'
+
             if(value.photo !=''){
               var share_file = "shares/"+value.photo
               if(share_file){
               //if(File::exists("shares/"+value.photo)){
                 data = data + '<div class="row mb-3">'
                 data = data +   '<div class="col-sm-6">'
-                data = data +      '<img class="img-fluid" src="'+user_url+'/'+value.u_photo+'" alt="Photo">'
+                data = data +      '<img class="img-fluid" src="'+user_url+'/'+value.user.photo+'" alt="Photo">'
                 data = data +    '</div>'
                 data = data +    '<div class="col-sm-1">'
-                data = data +       '<a href="javascript:void(0);" onclick="share_photo_delete('+value.sh_id+')" class="float-right btn-tool"><i class="fas fa-times"></i></a>'
+                data = data +       '<a href="javascript:void(0);" onclick="share_photo_delete('+value.id+')" class="float-right btn-tool"><i class="fas fa-times"></i></a>'
                 data = data +     '</div>'
                 data = data +  '</div>'
               }
             }
-
                 data = data + '<p>'+value.content_text+'</p>'
                 //data = data + '<p>'
-                data = data +    '<a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-1"></i>4 Like </a>'
-                data = data +    '<a href="javascript:void(0);" class="link-black text-sm share_edit" id="'+value.sh_id+'"> Edit</a>'
-            $.each(response['count_comment'], function(keyc, valuec){
-              if(value.sh_id==valuec.share_id){
-               
-                /* COMMENT COUNT   */
+                /*$.each(value.like_share, function(keyl, valuel){
+                  if(valuel.share_liked==1){*/
+                    data = data +    '<a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-1"></i>'+value.like_share.length+' Like /</a>'
+                  /*}
+                })*/
+                data = data +    '<a href="javascript:void(0);" class="link-black text-sm share_edit" id="'+value.id+'" onclick="share_edit('+value.id+')"> Edit</a>'
+                 /* COMMENT COUNT   */
                 data = data +    '<span class="float-right">'
                 data = data +       '<a href="#" class="link-black text-sm">'
-                data = data +          '<i class="far fa-comments mr-1"></i> Comments ('+valuec.count_com+')'
+                data = data +          '<i class="far fa-comments mr-1"></i> Comments ('+value.comment.length+')'
                 data = data +       '</a>'
                 data = data +    '</span>'
-                //console.log(valuec.count_com);
-                $.each(response['comments'], function(keys, values){
-                  if(value.sh_id==values.share_id){
+          
+            $.each(response.comment, function(keys, values){
+                  if(value.id==values.share_id){
                 /* COMMENTS */
                     data = data +   '<div class="user-block ml-3">'
-                    data = data +     '<img class="img-circle img-bordered-sm" src="'+user_url+'/'+value.u_photo+'" alt="user image">'
+                    data = data +     '<img class="img-circle img-bordered-sm" src="'+user_url+'/'+value.user.photo+'" alt="user image">'
                     data = data +         '<span class="username">'
-                    data = data +           '<a href="{{route('profile')}}">'+value.name+'</a>'
-                    data = data +           '<a href="javascript:void(0);" onclick="" class="float-right btn-tool mr-2"><i class="fas fa-times"></i></a>'
+                    data = data +           '<a href="{{route('profile')}}">'+value.user.name+'</a>'
+                    data = data +           '<a href="javascript:void(0);" onclick="com_delete('+values.id+')" class="float-right btn-tool mr-2"><i class="fas fa-times"></i></a>'
                     data = data +         '</span>'
                     data = data +         '<span class="description">'+values.created_at+'</span>'
                     data = data +    '</div>'
-                    data = data + '<p class="ml-3">'+values.share_comment+'</p>'
+                    data = data + '<p class="ml-3" id="cid'+values.id+'">'+values.share_comment+'</p>'
                 
                     data = data +    '<a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-2 ml-3 mb-2"></i>74 Like </a>'
-                    data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" onclick=""> Edit</a>'
-                    data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" onclick="">Reply</a>'
+                    data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" id="'+values.id+'" onclick="com_edit('+values.id+')">/ Edit</a>'
+                    data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" id="'+values.id+'" onclick="com_new('+values.id+')">/ Cavabla</a>'
+                   // data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" onclick="">Reply</a>'
 
-                    $.each(response['count_comment_subcomment'], function(keycsub, valuecsub){
-                      if(values.id==valuecsub.sub_comment_id){
-                
-                        /* FOR COMMENT COUNT   */
+                    /* FOR COMMENT COUNT   */
                         data = data +    '<span class="float-right">'
                         data = data +       '<a href="#" class="link-black text-sm">'
-                        data = data +          '<i class="far fa-comments mr-1"></i> Comments ('+valuecsub.count_subcom+')'
+                        data = data +          '<i class="far fa-comments mr-1"></i> Comments ('+values.children.length+')'
                         data = data +       '</a>'
                         data = data +    '</span>'
 
-                        $.each(response['comments_for_comment'], function(key_f_c, value_for_comment){
-                          if(values.id==value_for_comment.sub_comment_id){
-                        /* COMMENTS FOR COMMENT */
-                        data = data +   '<div class="user-block ml-5">'
-                        data = data +     '<img class="img-circle img-bordered-sm" src="'+user_url+'/'+value.u_photo+'" alt="user image">'
-                        data = data +         '<span class="username">'
-                        data = data +           '<a href="{{route('profile')}}">'+value.name+'</a>'
-                        data = data +           '<a href="javascript:void(0);" onclick="" class="float-right btn-tool mr-3"><i class="fas fa-times"></i></a>'
-                        data = data +         '</span>'
-                        data = data +         '<span class="description">'+value_for_comment.created_at+'</span>'
-                        data = data +    '</div>'
-                        data = data + '<p class="ml-5">'+value_for_comment.share_comment+'</p>'
-                    
-                        data = data +    '<a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-2 ml-5 mb-2"></i>28 Like </a>'
-                        data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" onclick=""> More</a>'
-
-                        
-                       
-                      }
-                    });
-                  }
-                });
-                  }
-                });
-              }
-            });
-                
-                //data = data +  '</p>'
-                data = data +    '<div class="input-group input-group-sm mb-2" style="display:none;" id="sh_edit'+value.sh_id+'">'
-                data = data +      '<input type="text" class="form-control form-control-sm" id="sh'+value.sh_id+'" placeholder="Response">'
+                       // COMMENT EDIT      
+                data = data +    '<div class="input-group input-group-sm mb-2" style="display:none" id="com_edit'+values.id+'">'
+                data = data +      '<input type="text" class="form-control form-control-sm" id="com'+values.id+'" placeholder="Response">'
                 data = data +      '<div class="input-group-append">'
-                data = data +         '<button type="submit" class="btn btn-danger" onclick="share_updated('+value.sh_id+')">Send</button>'
+                data = data +         '<button type="submit" class="btn btn-danger" onclick="com_updated('+values.id+')">Edit comment</button>'
                 data = data +      '</div>'
                 data = data +        '<span class="text-danger error-text" id ="share_post_error"></span>'
                 data = data +     '</div>'
-             
-                //data = data +    '<input type="hidden" id="sh_id" name="sh_id" value="'+value.sh_id+'">'
-                data = data +    '<div class="input-group input-group-sm mb-0 share_com" id="sh_com'+value.sh_id+'">'
-                data = data +      '<input type="text" class="form-control form-control-sm" id="sh_for_comment'+value.sh_id+'" placeholder="Response" name="content_text[]">'
+
+                // COMMENT FOR COMMENT INSERT      
+                data = data +    '<div class="input-group input-group-sm mb-2" style="display:none" id="com_insert'+values.id+'">'
+                data = data +      '<input type="text" class="form-control form-control-sm" id="comnew'+values.id+'" placeholder="New comment">'
+                data = data +       '<input type="hidden" id="share_id'+values.id+'" value="'+value.id+'">'
                 data = data +      '<div class="input-group-append">'
-                data = data +         '<button type="submit" class="btn btn-danger" onclick="share_for_comment()">Send</button>'
+                data = data +         '<button type="submit" class="btn btn-danger" onclick="com_insert('+values.id+')">New comment</button>'
+                data = data +      '</div>'
+                data = data +        '<span class="text-danger error-text" id ="share_post_error"></span>'
+                data = data +     '</div>'
+
+
+                        $.each(values.children, function(key_f_c, value_for_comment){
+                         
+                          /* COMMENTS FOR COMMENT */
+                          data = data +   '<div class="user-block ml-5">'
+                          data = data +     '<img class="img-circle img-bordered-sm" src="'+user_url+'/'+value.user.photo+'" alt="user image">'
+                          data = data +         '<span class="username">'
+                          data = data +           '<a href="{{route('profile')}}">'+value.user.name+'</a>'
+                          data = data +           '<a href="javascript:void(0);" onclick="comchild_delete('+values.id+')" class="float-right btn-tool mr-3"><i class="fas fa-times"></i></a>'
+                          data = data +         '</span>'
+                          data = data +         '<span class="description">'+value_for_comment.created_at+'</span>'
+                          data = data +    '</div>'
+                          data = data + '<p class="ml-5" id="cid'+value_for_comment.id+'">'+value_for_comment.share_comment+'</p>'
+                      
+                          data = data +    '<a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-2 ml-5 mb-2"></i>28 Like </a>'
+                          data = data +    '<a href="javascript:void(0);" class="link-black text-sm" id="'+value_for_comment.id+'" onclick="comchild_edit('+value_for_comment.id+')">/ Edit</a>'
+                          data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" id="'+value_for_comment.id+'" onclick="comchild_new('+values.id+')">/ Reply</a>'
+                          
+                          
+                    // COMMENT CHILD EDIT      
+                data = data +    '<div class="input-group input-group-sm mb-2" style="display:none;" id="comchild_edit'+value_for_comment.id+'">'
+                data = data +      '<input type="text" class="form-control form-control-sm" id="comchild'+value_for_comment.id+'" placeholder="Response">'
+                data = data +      '<div class="input-group-append">'
+                data = data +         '<button type="submit" class="btn btn-danger" onclick="comchild_updated('+value_for_comment.id+')">Edit comment</button>'
+                data = data +      '</div>'
+                data = data +        '<span class="text-danger error-text" id ="share_post_error"></span>'
+                data = data +     '</div>'
+
+                // COMMENT FOR COMMENT CHILD INSERT      
+                data = data +    '<div class="input-group input-group-sm mb-2" style="display:none;" id="comchild_insert'+value_for_comment.id+'">'
+                data = data +     '<p id="childcom'+value_for_comment.id+'"></p>'
+                data = data +      '<input type="text" class="form-control form-control-sm" id="comchildnew'+value_for_comment.id+'" placeholder="New comment">'
+                data = data +       '<input type="hidden" id="childshare_id'+value_for_comment.id+'" value="'+value.id+'">'
+                data = data +      '<div class="input-group-append">'
+                data = data +         '<button type="submit" class="btn btn-danger" onclick="comchild_insert('+value_for_comment.id+')">New comment</button>'
+                data = data +      '</div>'
+                data = data +        '<span class="text-danger error-text" id ="share_post_error"></span>'
+                data = data +     '</div>'
+
+                        })
+           
+                  }
+            
+            })
+              // SHARE EDIT
+
+                data = data +    '<div class="input-group input-group-sm mb-2" style="display:none;" id="sh_edit'+value.id+'">'
+                data = data +      '<input type="text" class="form-control form-control-sm" id="sh'+value.id+'" placeholder="Response">'
+                data = data +      '<div class="input-group-append">'
+                data = data +         '<button type="submit" class="btn btn-danger" onclick="share_updated('+value.id+')">Edit share</button>'
+                data = data +      '</div>'
+                data = data +        '<span class="text-danger error-text" id ="share_post_error"></span>'
+                data = data +     '</div>'
+
+             // COMMENT INSERT
+                //data = data +    '<input type="hidden" id="sh_id" name="sh_id" value="'+value.sh_id+'">'
+                data = data +    '<div class="input-group input-group-sm mb-0 share_com" id="sh_com'+value.id+'">'
+                data = data +      '<input type="text" class="form-control form-control-sm" id="sh_for_comment'+value.id+'" placeholder="Response" name="">'
+                data = data +      '<div class="input-group-append">'
+                data = data +         '<button type="submit" class="btn btn-danger" onclick="share_for_comment('+value.id+')">Send</button>'
                 data = data +      '</div>'
                 data = data +      '<span class="text-danger error-text" id ="share_post_error"></span>'
                 data = data +    '</div>'
               
                 data = data + '</div>'
-            
-            
-            
-            /*$.each(response['comments'], function(keys, values){
-              if(value.sh_id==values.share_id){
-                console.log(value.name);
-                console.log(values.share_comment);
-                
-              }
-           
-            });*/
-          });
+
+          })
+        
           $('#activity').html(data);
         }
 
-      }).done(function() {
+      })/*.done(function() {
   // Share edit view
           document.querySelector('.share_edit').addEventListener("click", function(event){
           let sh_id = event.target.id
@@ -344,12 +373,266 @@ $.ajaxSetup({
                 document.querySelector('#sh_edit'+sh_id).removeAttribute("style");
                 document.getElementById("sh"+sh_id).value = response;
               
-           }
-       });
-     })
-      });
+             }
+          });
+        })
+      });*/
     }
      fetchAllShares();
+
+// Share edit view
+     function share_edit(id){
+      $.ajax({
+           url: "{{route('share')}}/"+id,
+           method:"GET",
+           data:{id:id},
+           cache:false,
+            success: function(response){ 
+            
+                document.querySelector('#sh_edit'+id).removeAttribute("style");
+                document.getElementById("sh"+id).value = response;
+              
+             }
+          });
+     }
+
+       // share edit
+
+    function share_updated(id){
+      var sh_edit = $('#sh'+id).val();
+      //var sh_for_comment = $('input[name=content_text]').val();
+        $.ajax({
+          type: "PUT",
+          dataType:'json', 
+          data:{sh_edit:sh_edit},
+          url: "{{route('share.edit.post')}}/"+id,
+          success:function(response){
+            //console.log(response);
+            fetchAllShares();
+      
+          },
+          error:function(error){
+            $('#share_post_error').text(error.responseJSON.errors.sh_edit);
+          }
+        });
+
+      
+    }
+
+    // share for comment insert
+
+    function share_for_comment(id){
+      
+      var sh_for_comment = $('#sh_for_comment'+id).val();
+
+      $.ajax({
+        type: "POST",
+        dataType:'json', 
+        data:{id:id, sh_for_comment:sh_for_comment},
+        url: "{{route('share.comment.post')}}",
+        success:function(response){
+          //console.log(response);
+          fetchAllShares();
+    
+        },
+        error:function(error){
+          //console.log(error);
+          $('#share_post_error').text(error.responseJSON.errors.sh_for_comment);
+        }
+      });
+    }
+
+    // Comment edit view
+    function com_edit(id){
+      $.ajax({
+           url: "{{route('comment')}}/"+id,
+           method:"GET",
+           data:{id:id},
+           cache:false,
+            success: function(resp){ 
+            
+                document.querySelector('#com_edit'+id).removeAttribute("style");
+                document.getElementById("com"+id).value = resp;
+              //console.log(response);
+             }
+          });
+     }
+
+      // comment edit
+
+    function com_updated(id){
+      var com_edit = $('#com'+id).val();
+      //var sh_for_comment = $('input[name=content_text]').val();
+        $.ajax({
+          type: "PUT",
+          dataType:'json', 
+          data:{com_edit:com_edit},
+          url: "{{route('com.edit.post')}}/"+id,
+          success:function(response){
+            //console.log(response);
+            fetchAllShares();
+      
+          },
+          error:function(error){
+            $('#share_post_error').text(error.responseJSON.errors.com_edit);
+          }
+        });
+
+      
+    }
+
+    // Comment for comment
+    function com_new(id){
+      document.querySelector('#com_insert'+id).removeAttribute("style");
+       
+     }
+
+     // Comment for comment insert
+
+     function com_insert(id){
+      
+      var com_new = $('#comnew'+id).val();
+      var share_id = $('#share_id'+id).val();
+
+      $.ajax({
+        type: "POST",
+        dataType:'json', 
+        data:{id:id, com_new:com_new, share_id:share_id},
+        url: "{{route('comforcom')}}/"+id,
+        success:function(response){
+          //console.log(response);
+          fetchAllShares();
+    
+        },
+        error:function(error){
+          //console.log(error);
+          $('#share_post_error').text(error.responseJSON.errors.com_new);
+        }
+      });
+    }
+
+     // Comment for comment child
+     function comchild_new(id){
+      
+      $.ajax({
+           url: "{{route('commentchild')}}/"+id,
+           method:"GET",
+           data:{id:id},
+           cache:false,
+            success: function(r){ 
+              
+              document.querySelector('#comchild_insert'+id).removeAttribute('style');
+              document.querySelector('#childcom'+id).text(r);
+             
+             
+              //console.log(r);
+             }
+          });
+       
+     }
+
+     // COMMENT CHILD INSERT
+     function comchild_insert(id){
+      
+      var com_new = $('#comchildnew'+id).val();
+      var share_id = $('#childshare_id'+id).val();
+
+      $.ajax({
+        type: "POST",
+        dataType:'json', 
+        data:{id:id, com_new:com_new, share_id:share_id},
+        url: "{{route('comforcomchild')}}/"+id,
+        success:function(response){
+          //console.log(response);
+          fetchAllShares();
+    
+        },
+        error:function(error){
+          //console.log(error);
+          $('#share_post_error').text(error.responseJSON.errors.com_new);
+        }
+      });
+    }
+
+
+     // Comment child edit view
+    function comchild_edit(id){
+      $.ajax({
+           url: "{{route('comment')}}/"+id,
+           method:"GET",
+           data:{id:id},
+           cache:false,
+            success: function(res){ 
+            
+                document.querySelector('#comchild_edit'+id).removeAttribute("style");
+                document.getElementById("comchild"+id).value = res;
+              //console.log(response);
+             }
+          });
+     }
+
+      // comment child edit
+
+    function comchild_updated(id){
+      var comchild_edit = $('#comchild'+id).val();
+      //var sh_for_comment = $('input[name=content_text]').val();
+        $.ajax({
+          type: "PUT",
+          dataType:'json', 
+          data:{comchild_edit:comchild_edit},
+          url: "{{route('comchild.edit.post')}}/"+id,
+          success:function(response){
+            //console.log(response);
+            fetchAllShares();
+      
+          },
+          error:function(error){
+            $('#share_post_error').text(error.responseJSON.errors.comchild_edit);
+          }
+        });
+
+      
+    }
+
+    // Comment delete
+  function com_delete(id){
+    if(confirm("Silmeye eminsiniz??")){
+      $.ajax({
+           url: "{{route('com.delete')}}/"+id,
+           type:"GET",
+           data:{
+             id:id
+           },
+           dataType:'json',
+           cache:false,
+            success: function(response){ 
+              $("#cid"+id).remove();
+              fetchAllShares();
+           }
+       });
+    }
+        
+    }
+
+    // Comment delete
+  function comchild_delete(id){
+    if(confirm("Silmeye eminsiniz??")){
+      $.ajax({
+           url: "{{route('comchild.delete')}}/"+id,
+           type:"GET",
+           data:{
+             id:id
+           },
+           dataType:'json',
+           cache:false,
+            success: function(response){ 
+              $("#cid"+id).remove();
+              fetchAllShares();
+           }
+       });
+    }
+        
+    }
    
     // Share delete
   function share_delete(id){
@@ -433,47 +716,7 @@ $.ajaxSetup({
     });
   });
 
-      // share edit
-
-    function share_updated(id){
-      var sh_edit = $('#sh'+id).val();
-      //var sh_for_comment = $('input[name=content_text]').val();
-        $.ajax({
-          type: "PUT",
-          dataType:'json', 
-          data:{sh_edit:sh_edit},
-          url: "{{route('share.edit.post')}}/"+id,
-          success:function(response){
-            fetchAllShares();
       
-          },
-          error:function(error){
-            $('#share_post_error').text(error.responseJSON.errors.sh_edit);
-          }
-        });
-
-      
-    }
-
-    function share_for_comment(){
-      var sh_id = $('input[name=sh_id]').val();
-      var sh_for_comment = $('input[name=content_text]').val();
-
-      $.ajax({
-        type: "POST",
-        dataType:'json', 
-        data:{sh_id:sh_id, sh_for_comment:sh_for_comment},
-        url: "{{route('share.comment.post')}}",
-        success:function(response){
-          fetchAllShares();
-    
-        },
-        error:function(error){
-          console.log(error);
-          $('#share_post_error').text(error.responseJSON.errors.sh_for_comment);
-        }
-      });
-    }
 
     /*$('#formshare').on('submit', function(e){
       e.preventDefault(); 

@@ -19,12 +19,42 @@ class FrontKursController extends Controller
     }
 
     public function kurs(){
+        /*$courses = DB::table('kurs')
+                ->join('admins', 'admins.id','=','kurs.admin_id')
+                ->select('admins.id','admins.name_familya','admins.id as a_id','kurs.*')
+                ->whereIn('kurs.id', function ($query) {
+                    $query->select('kurs_id')
+                    ->from('user_kurs')
+                    ->where('user_id', Auth::user()->id );
+                })
+                ->get();
+            */
         $courses = DB::table('kurs')
-                    ->join('admins','admins.id','=','kurs.admin_id')
-                    ->where('kurs.status','=','1')
-                    ->select('admins.id as a_id','admins.name_familya','kurs.*','kurs.status as k_status','kurs.created_at as k_date','kurs.updated_at as k_update')
+                    ->join('admins', 'admins.id','=','kurs.admin_id')
+                    ->select('admins.id','admins.name_familya','admins.id as a_id','kurs.*')
                     ->get();
-        $user_kurs = DB::table('user_kurs')->get();
-        return view('front.kurs',compact('courses','user_kurs'));
+        $user_kurs = DB::table('user_kurs')
+                    ->select('kurs_id')
+                    ->where('user_id', '=', Auth::user()->id)
+                    ->get();
+
+   
+        for ($i=0; $i < count($courses); $i++) { 
+            $course_id = $courses[$i]->id;
+
+            for ($j=0; $j < count($user_kurs); $j++) { 
+                $alinanKurs_id = $user_kurs[$j]->kurs_id;
+                if($alinanKurs_id == $course_id){
+                    $courses[$i]->sold=trim(1);
+                }else{
+                    $courses[$i]->sold=trim(0);
+                } 
+            }
+            
+        }
+
+        //dd($courses);
+              
+        return view('front.kurs', compact('courses'));
     }
 }

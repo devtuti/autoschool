@@ -11,7 +11,10 @@ use App\Models\Jurnal;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Test_User_Answer;
 use App\Models\User_resultats;
-use App\Models\Shares;
+use App\Models\Share;
+use App\Models\Comment;
+use App\Models\User;
+use App\Models\Likes;
 use Illuminate\Support\Facades\Validator;
 use File;
 
@@ -26,32 +29,7 @@ class HomeController extends Controller
 
     public function index(){
         $user_id = Auth::user()->id;
-        /*$user_correct_count = DB::table('test_user_answers')
-                ->select(DB::raw('COUNT(question_id) AS user_correct_count'))  // user_id yazilmamalidir countda
-                ->join('test_questions', 'test_questions.id', '=', 'test_user_answers.question_id')
-                ->where('test_user_answers.user_id', '=', $user_id)
-                ->where('test_questions.correct_answer', '=', 'test_user_answers.answer')
-                ->groupBy('test_questions.cat_id')
-                ->get();
-        $question_correct_count = DB::table('test_questions')
-                            ->select(DB::raw('COUNT(id) AS question_correct_count'))
-                            ->groupBy('test_questions.cat_id')
-                            ->get();
-            foreach($user_correct_count as $u_c_c){
-                foreach($question_correct_count as $q_c_c){
-                    $u_c =$u_c_c->user_correct_count;
-                    $q_c = $q_c_c->question_correct_count;
-                    $faiz = ($u_c*100)/$q_c;
-                }
-            }
-        $hit = DB::table('test_user_answers')
-            ->join('test_questions', 'test_questions.id', '=', 'test_user_answers.question_id')
-            ->join('users', 'users.id', '=', 'test_user_answers.user_id')
-            ->select('users.name', 'test_user_answers.created_at as user_date', DB::raw('COUNT(test_user_answers.question_id) AS quest_count'))
-            ->where('test_questions.correct_answer', '=', 'test_user_answers.answer')
-            ->groupBy('test_questions.cat_id')
-            ->limit(5)
-            ->get();*/
+      
         $last_test = DB::table('user_resultats')
                     ->join('categories','categories.id','=','user_resultats.cat_id')
                     ->select('user_resultats.*','categories.id','categories.cat_name')
@@ -70,19 +48,8 @@ class HomeController extends Controller
                     ->where('grade','=','2')
                     ->where('status','=','1')
                     ->get();
-       /* $comments_count = DB::table('comments')  
-                            ->select(DB::raw('count(*) as com_count'))        
-                            ->groupBy('comments.share_id')
-                            ->get();*/
-
-        /*$shares = DB::table('shares')
-                    ->join('users','users.id','=','shares.user_id')
-                    ->select('users.name','users.id', 'users.photo','shares.*', 'users.photo as u_photo','shares.created_at as sh_date','shares.id as sh_id')
-                    ->where('user_id', $user_id)
-                    ->orderBy('shares.created_at','desc')
-                    ->get();*/
-        /*
-        Suallari category gore qruplayib sayi 100%.
+   
+      /*  Suallari category gore qruplayib sayi 100%.
         hemin category gore qruplanmiw test_questions id beraber olmalidi test_user_answer.question_id ve user_id=giren usere
         ordan cixan answer_id beraber olmalidi test_answers.a_id 
         where test_answers.correct_answer=1
@@ -169,7 +136,15 @@ class HomeController extends Controller
 
     public function shares(){
         $user_id = Auth::user()->id;
-        $data['posts'] = DB::table('shares')
+        $data['share'] = Share::with('user')->with('comment')->with('like_share')->get();
+        $data['comment'] = Comment::where('sub_comment_id','=','0')->with('children')->get();
+        
+        /*$data['share_like'] = DB::table('likes')
+                                ->join('shares','shares.id','=','likes.share_id')
+                                ->select(DB::raw('sum(likes.liked) as share_like'))
+                                ->groupBy('likes.share_id')
+                                ->get();
+       /* $data['posts'] = DB::table('shares')
                     ->join('users','users.id','=','shares.user_id')
                     ->select('users.name','users.id', 'users.photo','shares.*', 'users.photo as u_photo','shares.created_at as sh_date','shares.id as sh_id')
                     ->groupBy('shares.id')
@@ -193,8 +168,10 @@ class HomeController extends Controller
                                 ->select('comments.sub_comment_id',DB::raw('count(comments.sub_comment_id) as count_subcom'))
                                 ->where('sub_comment_id','>','0')
                                 ->groupBy('comments.sub_comment_id')
-                                ->get();
+                                ->get();*/
         return response()->json($data);
+
+
        /* $shares = DB::table('shares')
                     ->join('users','users.id','=','shares.user_id')
                     ->select('users.name','users.id', 'users.photo','shares.*', 'users.photo as u_photo','shares.created_at as sh_date','shares.id as sh_id')
@@ -206,7 +183,6 @@ class HomeController extends Controller
     }
 
     public function category($slug){
-        //$categories = Category::where('sub_id', 0)->with('children')->get();
 
         $cat = DB::table('categories')->where('slug','=',$slug)->first();
         $lessons = DB::table('lessons')
@@ -218,7 +194,6 @@ class HomeController extends Controller
         return view('front.lesson', compact('lessons'));
     }
     public function lesson($slug){
-        //$categories = Category::where('sub_id', 0)->with('children')->get();
         $lesson = DB::table('lessons')->where('slug','=',$slug)->first();
         return view('front.lesson_single', compact('lesson'));
     }
@@ -231,7 +206,7 @@ class HomeController extends Controller
                 ->select('test_questions.*', 'test_questions.id as q_id')
                 ->get();
         $count_test = DB::table('test_questions')->where('staus','1')->where('cat_id',$id)->get()->count();
-        //$useranswers = DB::table('test_user_answers')->get();
+        
         return view('front.test', compact('tests','count_test','id'));
     }
 

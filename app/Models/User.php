@@ -20,6 +20,15 @@ class User extends Authenticatable
         'name', 'email', 'password', 'teacher_id', 'status',
     ];
 
+    public function comment(){
+        //return $this->hasManyThrough(Comments::class, User::class);
+        return $this->hasMany(Comment::class);
+    }
+
+    public function share(){
+        return $this->hasMany(Share::class);
+    }
+
     /**
      * The attributes that should be hidden for arrays.
      *

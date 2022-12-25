@@ -21,7 +21,7 @@
             if($_POST){
             ?>
           <div class="card card-primary card-outline">
-          @if($count_a>0)
+          @if($count_a>0) 
             @if($payment->amount>=5)
                 <?php $i =1;?>     
                 <div class="card-body">
