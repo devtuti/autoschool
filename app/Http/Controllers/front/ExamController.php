@@ -44,22 +44,19 @@ class ExamController extends Controller
                     ->where('test_questions.staus', '=', '1')
                     ->select('test_questions.*', 'test_answers.*', 'test_answers.id as an_id')
                     ->get();
+        return response()->json($questions_a);
         
-         foreach($questions_a as $question_a){
-            /* $input = DB::table('test_user_answer')
-                        ->where('question_id', '=', $id)
-                        ->where('user_id', '=', Auth::user()->id)
-                        ->where('answer_id', '=', $question_a->an_id)
-                        ->count();*/
+        /* foreach($questions_a as $question_a){
+            
             return $question_a->question. '<br><div class="form-group">
             <div class="custom-control custom-radio">
-              <input class="custom-control-input" type="radio" id="customRadio1" name="answers" value="'.$question_a->an_id.'">
+              <input class="custom-control-input" type="radio" id="customRadio1" name="answers[]" value="'.$question_a->an_id.'">
               <label for="customRadio1" class="custom-control-label">'.$question_a->answer.'</label>
             
                 
             
             </div></div>'; 
-        }
+        }*/
     }
     
 }

@@ -31,11 +31,11 @@
                       
                   <?php $i++; ?>
                   @endforeach
-                  <p class="card-text">
+                  <div class="card-body" id="card_body">
                     
-                  </p>
+                  </div>
                   
-                    <br><input class="btn btn-primary pull-right" type="submit" value="Send Answer">
+                   
                   
                 </div>
                 @else
@@ -82,8 +82,18 @@
            method:"GET",
            data:{id:id},
            cache:false,
-            success: function(data){ 
-                $(".card-text").html(data);
+            success: function(res){ 
+              var data = ""
+              $.each(res, function(key, value){
+                data = data + '<p class="card-text">'+value.question+'</p>'
+                data = data + '<br><div class="form-group"> <div class="custom-control custom-radio">'
+                data = data + '<input class="custom-control-input" type="radio" id="customRadio1" name="answers[]" value="'+value.an_id+'">'
+                data = data +'<label for="customRadio1" class="custom-control-label">'+value.answer+'</label>'
+                data = data + '</div></div>'
+                data = data + ' <br><input class="btn btn-primary pull-right" type="submit" value="Send Answer">'
+                
+              })
+                $("#card_body").html(data);
                 
            }
        });
