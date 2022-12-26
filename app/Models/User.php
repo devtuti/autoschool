@@ -29,6 +29,10 @@ class User extends Authenticatable
         return $this->hasMany(Share::class);
     }
 
+    public function like(){
+        return $this->hasMany(Share_like::class);
+    }
+
     /**
      * The attributes that should be hidden for arrays.
      *

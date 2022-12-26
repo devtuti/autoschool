@@ -25,6 +25,8 @@ class Comment extends Model
     }
 
     public function like_comment(){
-        return $this->hasMany(Likes::class);
+        return $this->hasMany(Comment_like::class);
     }
+
+    
 }

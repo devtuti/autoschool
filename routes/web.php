@@ -30,6 +30,7 @@ use \App\Http\Controllers\front\ExamController;
 use \App\Http\Controllers\front\FrontKursController;
 use \App\Http\Controllers\front\MesajController;
 use \App\Http\Controllers\front\CommentsController;
+use \App\Http\Controllers\front\LikesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,8 +77,10 @@ Route::put('/share_edit/{id?}', [StudentLoginController::class, 'share_edit_post
 Route::get('/share_delete/{id?}', [StudentLoginController::class, 'share_delete'])->middleware('isStudentAdmin')->name('share.delete');
 Route::get('/share_photo_delete/{id?}', [StudentLoginController::class, 'share_photo_delete'])->middleware('isStudentAdmin')->name('share.photo.delete');
 Route::post('/share_for_comment', [CommentsController::class, 'share_for_comment'])->middleware('isStudentAdmin')->name('share.comment.post');
+Route::post('/share_like', [LikesController::class, 'share_like'])->middleware('isStudentAdmin')->name('share.like.post');
 Route::post('/comforcom/{id?}', [CommentsController::class, 'comforcom'])->middleware('isStudentAdmin')->name('comforcom');
 Route::get('/comment/{id?}', [CommentsController::class, 'comment'])->middleware('isStudentAdmin')->name('comment');
+Route::post('/comment_like', [LikesController::class, 'comment_like'])->middleware('isStudentAdmin')->name('comment.like.post');
 Route::get('/comment_child/{id?}', [CommentsController::class, 'comment_child'])->middleware('isStudentAdmin')->name('commentchild');
 Route::post('/comforcom_child/{id?}', [CommentsController::class, 'comforcomchild'])->middleware('isStudentAdmin')->name('comforcomchild');
 Route::put('/com_edit/{id?}', [CommentsController::class, 'com_edit_post'])->middleware('isStudentAdmin')->name('com.edit.post');

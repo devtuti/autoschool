@@ -14,7 +14,7 @@ use App\Models\User_resultats;
 use App\Models\Share;
 use App\Models\Comment;
 use App\Models\User;
-use App\Models\Likes;
+use App\Models\Share_like;
 use Illuminate\Support\Facades\Validator;
 use File;
 
@@ -137,7 +137,7 @@ class HomeController extends Controller
     public function shares(){
         $user_id = Auth::user()->id;
         $data['share'] = Share::with('user')->with('comment')->with('like_share')->get();
-        $data['comment'] = Comment::where('sub_comment_id','=','0')->with('children')->get();
+        $data['comment'] = Comment::where('sub_comment_id','=','0')->with('children')->with('like_comment')->get();
         
         /*$data['share_like'] = DB::table('likes')
                                 ->join('shares','shares.id','=','likes.share_id')

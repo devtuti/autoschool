@@ -230,11 +230,9 @@ $.ajaxSetup({
             }
                 data = data + '<p>'+value.content_text+'</p>'
                 //data = data + '<p>'
-                /*$.each(value.like_share, function(keyl, valuel){
-                  if(valuel.share_liked==1){*/
-                    data = data +    '<a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-1"></i>'+value.like_share.length+' Like /</a>'
-                  /*}
-                })*/
+               
+                data = data +    '<a href="javascript:void(0);" class="link-black text-sm" onclick="share_like('+value.id+')"><i class="far fa-thumbs-up mr-1"></i>'+value.like_share.length+' Like /</a>'
+                 
                 data = data +    '<a href="javascript:void(0);" class="link-black text-sm share_edit" id="'+value.id+'" onclick="share_edit('+value.id+')"> Edit</a>'
                  /* COMMENT COUNT   */
                 data = data +    '<span class="float-right">'
@@ -256,7 +254,7 @@ $.ajaxSetup({
                     data = data +    '</div>'
                     data = data + '<p class="ml-3" id="cid'+values.id+'">'+values.share_comment+'</p>'
                 
-                    data = data +    '<a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-2 ml-3 mb-2"></i>74 Like </a>'
+                    data = data +    '<a href="javascript:void(0);" class="link-black text-sm" onclick="com_like('+values.id+')"><i class="far fa-thumbs-up mr-2 ml-3 mb-2"></i>'+values.like_comment.length+' Like </a>'
                     data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" id="'+values.id+'" onclick="com_edit('+values.id+')">/ Edit</a>'
                     data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" id="'+values.id+'" onclick="com_new('+values.id+')">/ Cavabla</a>'
                    // data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" onclick="">Reply</a>'
@@ -301,7 +299,7 @@ $.ajaxSetup({
                           data = data +    '</div>'
                           data = data + '<p class="ml-5" id="cid'+value_for_comment.id+'">'+value_for_comment.share_comment+'</p>'
                       
-                          data = data +    '<a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-2 ml-5 mb-2"></i>28 Like </a>'
+                          data = data +    '<a href="javascript:void(0);" class="link-black text-sm" onclick="comchild_like('+value_for_comment.id+')"><i class="far fa-thumbs-up mr-2 ml-5 mb-2"></i> Like </a>'
                           data = data +    '<a href="javascript:void(0);" class="link-black text-sm" id="'+value_for_comment.id+'" onclick="comchild_edit('+value_for_comment.id+')">/ Edit</a>'
                           data = data +    '<a href="javascript:void(0);" class="link-black text-sm mr-2" id="'+value_for_comment.id+'" onclick="comchild_new('+values.id+')">/ Reply</a>'
                           
@@ -417,6 +415,26 @@ $.ajaxSetup({
         });
 
       
+    }
+
+    // SHARE LIKE
+
+    function share_like(id){
+      $.ajax({
+        type: "POST",
+        dataType:'json', 
+        data:{id:id},
+        url: "{{route('share.like.post')}}",
+        success:function(response){
+          //console.log(response);
+          fetchAllShares();
+    
+        },
+        error:function(error){
+          //console.log(error);
+          $('#share_post_error').text(error.responseJSON.errors.id);
+        }
+      });
     }
 
     // share for comment insert
@@ -592,6 +610,42 @@ $.ajaxSetup({
         });
 
       
+    }
+
+    // COMMENT LIKE
+
+    function com_like(id){
+      $.ajax({
+        type: "POST",
+        dataType:'json', 
+        data:{id:id},
+        url: "{{route('comment.like.post')}}",
+        success:function(response){
+          fetchAllShares();
+    
+        },
+        error:function(error){
+          $('#share_post_error').text(error.responseJSON.errors.id);
+        }
+      });
+    }
+
+    // COMMENT CHILD LIKE
+
+    function comchild_like(id){
+      $.ajax({
+        type: "POST",
+        dataType:'json', 
+        data:{id:id},
+        url: "{{route('comment.like.post')}}",
+        success:function(response){
+          fetchAllShares();
+    
+        },
+        error:function(error){
+          $('#share_post_error').text(error.responseJSON.errors.id);
+        }
+      });
     }
 
     // Comment delete

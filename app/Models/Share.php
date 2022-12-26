@@ -23,6 +23,6 @@ class Share extends Model
 
     public function like_share(){
         
-        return $this->hasMany(Likes::class);
+        return $this->hasMany(Share_like::class);
     }
 }
