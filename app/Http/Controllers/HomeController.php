@@ -37,6 +37,14 @@ class HomeController extends Controller
                     ->orderBy('user_resultats.created_at','desc')
                     ->limit(1)
                     ->first();
+
+        $last_course_test = DB::table('course_user_resultats')
+                    ->join('kurs_categories','kurs_categories.id','=','course_user_resultats.cat_id')
+                    ->select('course_user_resultats.*','kurs_categories.id','kurs_categories.kcat_name')
+                    ->where('user_id',$user_id)
+                    ->orderBy('course_user_resultats.created_at','desc')
+                    ->limit(1)
+                    ->first();
         $hit = DB::table('user_resultats')
                 ->join('categories','categories.id','=','user_resultats.cat_id')
                 ->join('users','users.id','=','user_resultats.user_id')
@@ -54,7 +62,7 @@ class HomeController extends Controller
         ordan cixan answer_id beraber olmalidi test_answers.a_id 
         where test_answers.correct_answer=1
     */
-        return view('front.home', compact('teachers','last_test','hit'));
+        return view('front.home', compact('teachers','last_test','hit','last_course_test'));
     }
 
 

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UserKursAnswers extends Migration
+class CourseTestUserAnswers extends Migration
 {
     /**
      * Run the migrations.
@@ -13,21 +13,21 @@ class UserKursAnswers extends Migration
      */
     public function up()
     {
-        Schema::create('user_kurs_answers', function (Blueprint $table) {
+        Schema::create('course_test_user_answers', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('question_id');
-            $table->string('answer');
-
+            $table->integer('answer');
+            
             $table->foreign('user_id')
-                    ->references('id')
-                    ->on('users')
-                    ->onDelete('cascade');
+            ->references('id')
+            ->on('users')
+            ->onDelete('cascade');
 
             $table->foreign('question_id')
-                    ->references('id')
-                    ->on('kurs_questions')
-                    ->onDelete('cascade');
+            ->references('id')
+            ->on('kurs_questions')
+            ->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -39,6 +39,6 @@ class UserKursAnswers extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_kurs_answers');
+        Schema::dropIfExists('course_test_user_answers');
     }
 }

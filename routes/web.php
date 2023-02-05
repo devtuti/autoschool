@@ -67,6 +67,14 @@ Route::post('/amount', [BalanceController::class, 'amount'])->middleware('isStud
 Route::get('/exam', [ExamController::class, 'exam'])->middleware('isStudentAdmin')->name('exam');
 Route::post('/exam', [ExamController::class, 'exam_post'])->middleware('isStudentAdmin')->name('exam_post');
 Route::get('/course', [FrontKursController::class, 'kurs'])->middleware('isStudentAdmin')->name('course');
+Route::post('/course_like', [FrontKursController::class, 'kurs_like'])->middleware('isStudentAdmin')->name('course.like.post');
+Route::get('/course_like_count', [FrontKursController::class, 'course_like_count'])->middleware('isStudentAdmin')->name('course.like_count');
+Route::get('/course/{slug?}', [FrontKursController::class, 'kurs_cats'])->middleware('isStudentAdmin')->name('course.cats');
+Route::get('/course/cat/{id?}', [FrontKursController::class, 'kurs_lessons'])->middleware('isStudentAdmin')->name('course.lessons');
+Route::get('/course_test/{id?}', [FrontKursController::class, 'kurs_test'])->middleware('isStudentAdmin')->name('course.tests');
+Route::post('/course_test', [FrontKursController::class, 'course_test_user'])->middleware('isStudentAdmin')->name('course.test_user');
+Route::get('/course_comments', [FrontKursController::class, 'course_comments'])->middleware('isStudentAdmin')->name('course.comments');
+Route::post('/course_comment_new/{id?}', [FrontKursController::class, 'course_comment_insert'])->middleware('isStudentAdmin')->name('course.comment.insert');
 Route::get('/question', [ExamController::class, 'question'])->middleware('isStudentAdmin')->name('question');
 Route::get('/cat/{slug?}', [HomeController::class, 'category'])->middleware('isStudentAdmin')->name('category');
 Route::get('/lesson/{slug?}', [HomeController::class, 'lesson'])->middleware('isStudentAdmin')->name('single_lesson');

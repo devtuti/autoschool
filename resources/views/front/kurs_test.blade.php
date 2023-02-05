@@ -1,6 +1,6 @@
 @extends('layouts.front')
 @section('title')
-    Lesson test page
+    Kurs test page
 @endsection
 @section('css')
 @endsection
@@ -31,7 +31,7 @@
             <div class="card">
               <div class="card-body">
               <h5 class="card-title">Test sayi: {{$count_test}}</h5>
-                <form action="{{route('test_user')}}" method="post">
+                <form action="{{route('course.test_user')}}" method="post">
                     @csrf
                     <input type="hidden" name="cat" value="{{$id}}">
                     <input type="hidden" name="user" value="{{Auth::user()->id}}">
@@ -74,10 +74,10 @@
 @section('js')
 <script>
 
-    const selected_radio = localStorage.getItem('selected_radio{{$id}}')
+    const selectcourse_radio = localStorage.getItem('selectcourse_radio{{$id}}')
             
-        if (selected_radio){
-                const get_array = JSON.parse(selected_radio)
+        if (selectcourse_radio){
+                const get_array = JSON.parse(selectcourse_radio)
                 for (let radioId of get_array) {
                 document.getElementById(radioId).checked = true;
             }
@@ -86,21 +86,21 @@
     const radioBtn = document.querySelectorAll('input[type=radio]')
     radioBtn.forEach(btn => {
         btn.addEventListener('click', function(){
-            const current_data =JSON.parse( localStorage.getItem('selected_radio{{$id}}'))
+            const current_data =JSON.parse( localStorage.getItem('selectcourse_radio{{$id}}'))
 
             if (current_data){
                     current_data.push(btn.id)
-                localStorage.setItem("selected_radio{{$id}}", JSON.stringify(current_data) )
+                localStorage.setItem("selectcourse_radio{{$id}}", JSON.stringify(current_data) )
             }else{
                 fist_data = []
                 fist_data.push(btn.id)
-                localStorage.setItem("selected_radio{{$id}}", JSON.stringify(fist_data) )
+                localStorage.setItem("selectcourse_radio{{$id}}", JSON.stringify(fist_data) )
             }       
         })
     })
 
     function deleted(){
-      localStorage.removeItem("selected_radio{{$id}}");
+      localStorage.removeItem("selectcourse_radio{{$id}}");
     }
 
 </script>

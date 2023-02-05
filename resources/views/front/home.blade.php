@@ -55,7 +55,20 @@
                     <!-- /.progress-group -->
            
                   <p class="card-text"><i>{{$last_test->created_at}}</i></p>
-                    
+
+                  @if($last_course_test)
+                  <div class="progress-group">
+                      
+                      {{$last_course_test->kcat_name}}
+                      <span class="float-right"><b>{{$last_course_test->correct_percent}}%</b>/{{$last_course_test->correct_count}}</span>
+                      <div class="progress progress-sm">
+                        <div class="progress-bar <?php if($last_course_test->correct_percent<31) echo 'bg-warning'; elseif($last_course_test->correct_percent<51) echo 'bg-danger'; elseif($last_course_test->correct_percent<71) echo 'bg-primary'; elseif($last_course_test->correct_percent>80) echo 'bg-success'; else{}?>" style="width: {{$last_course_test->correct_percent}}%"></div>
+                      </div>
+                    </div>
+                    <!-- /.progress-group -->
+           
+                  <p class="card-text"><i>{{$last_course_test->created_at}}</i></p>
+                    @endif
               </div>
             </div>
             

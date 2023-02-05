@@ -23,9 +23,15 @@
           <div class="card card-primary card-outline">
           @if($count_a>0) 
             @if($payment->amount>=5)
-                <?php $i =1;?>     
-                <div class="card-body">
+
+            <div id="counter"></div>
+            <?php
+            
+              $i =1;
+            ?>     
+                <div class="card-body" id="card_counter">
                   <h5 class="card-title"></h5>
+                 
                   @foreach($questions as $question)
                       <input class="btn btn-primary pull-right" type="submit" onclick='return sual("{{$question->id}}");' value="{{$i}}" name="q_id">
                       
@@ -34,10 +40,9 @@
                   <div class="card-body" id="card_body">
                     
                   </div>
-                  
-                   
-                  
+              
                 </div>
+             
                 @else
                 <div class="card-body">
                   <p class="card-text">
@@ -73,7 +78,28 @@
 
 @section('js')
 <script>
-  
+  // COUNTER
+
+  let minute = 15;
+  let second = minute * 60;
+  let counterElement = document.querySelector("#counter");
+
+  let startCounter = setInterval(() => {
+    if(second <=0 ){
+      clearInterval(startCounter);
+      counterElement.innerHTML = "counter expired";
+    }else{
+      second--;
+      const counterminute = Math.floor(second / 60) % 60;
+      const countersecond = Math.floor(second % 60);
+      counterElement.innerHTML = ` ${format(counterminute)} : ${format(countersecond)} `;
+      
+    }
+  }, 1000);     
+  function format(a){
+    return a < 10 ? `0${a}` : a;
+  }       
+
     function sual(id){
         //alert(id);
         //return true;

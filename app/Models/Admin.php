@@ -28,6 +28,11 @@ class Admin extends Authenticatable
         return $this->hasMany(Groups::class);
     }
 
+    public function kurs()
+    {
+        return $this->hasMany(Kurs::class);
+    }
+
     
     /**
      * The attributes that should be cast to native types.

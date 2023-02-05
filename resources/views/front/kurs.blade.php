@@ -44,6 +44,8 @@
                         <h6><i>Course share date: {{$user_k->created_at}}</i></h6>
                         @if($user_k->sold==0)
                         <a href="" class="card-link">Satin al</a>
+                        @else
+                        <a href="{{route('course.cats',$user_k->slug)}}" class="card-link">Kursa goz at</a>
                         @endif
                     </div>
                 

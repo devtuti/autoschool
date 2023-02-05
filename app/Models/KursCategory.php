@@ -26,6 +26,10 @@ class KursCategory extends Model
 
     public function lesson()
     {
-        return $this->hasMany(KursLesson::class);
+        return $this->hasMany(KursLesson::class,'cat_id');
+    }
+
+    public function kurs(){
+        return $this->belongsTo(Kurs::class);
     }
 }
