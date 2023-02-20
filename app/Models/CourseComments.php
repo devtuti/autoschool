@@ -16,4 +16,9 @@ class CourseComments extends Model
     public function user(){
         return $this->belongsTo(User::class);
     }
+
+    public function course_comment_like()
+    {
+        return $this->hasMany(Course_Comment_Like::class,'comment_id');
+    }
 }

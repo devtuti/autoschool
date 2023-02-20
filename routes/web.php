@@ -75,6 +75,10 @@ Route::get('/course_test/{id?}', [FrontKursController::class, 'kurs_test'])->mid
 Route::post('/course_test', [FrontKursController::class, 'course_test_user'])->middleware('isStudentAdmin')->name('course.test_user');
 Route::get('/course_comments', [FrontKursController::class, 'course_comments'])->middleware('isStudentAdmin')->name('course.comments');
 Route::post('/course_comment_new/{id?}', [FrontKursController::class, 'course_comment_insert'])->middleware('isStudentAdmin')->name('course.comment.insert');
+Route::get('/course_comment_edit/{id?}', [FrontKursController::class, 'course_comment_edit'])->middleware('isStudentAdmin')->name('course.comment.edit');
+Route::put('/course_comment_edit_post/{id?}', [FrontKursController::class, 'course_comment_update'])->middleware('isStudentAdmin')->name('course.com.edit.post');
+Route::get('/course_comment_delete/{id?}', [FrontKursController::class, 'course_comment_delete'])->middleware('isStudentAdmin')->name('course.com.delete');
+Route::post('/course_comment_like', [FrontKursController::class, 'course_comment_like'])->middleware('isStudentAdmin')->name('course.comment.like.post');
 Route::get('/question', [ExamController::class, 'question'])->middleware('isStudentAdmin')->name('question');
 Route::get('/cat/{slug?}', [HomeController::class, 'category'])->middleware('isStudentAdmin')->name('category');
 Route::get('/lesson/{slug?}', [HomeController::class, 'lesson'])->middleware('isStudentAdmin')->name('single_lesson');

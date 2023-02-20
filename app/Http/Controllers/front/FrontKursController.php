@@ -16,6 +16,7 @@ use App\Models\Kurs_Like;
 use App\Models\Course_Test_User_Answer;
 use App\Models\Course_user_resultats;
 use App\Models\CourseComments;
+use App\Models\Course_Comment_Like;
 
 class FrontKursController extends Controller
 {
@@ -162,7 +163,7 @@ class FrontKursController extends Controller
 
     public function course_comments(){
         $user_id = Auth::user()->id;
-        $data['comments'] = CourseComments::with('user')->get();
+        $data['comments'] = CourseComments::with('user')->with('course_comment_like')->get();
         return response()->json($data);
     }
 
@@ -179,6 +180,56 @@ class FrontKursController extends Controller
         );
         $result =CourseComments::insert($data);
             return response()->json();
+    }
+
+    public function course_comment_edit(Request $request){
+        $id = $request->id;
+        $comments = DB::table('course_comments')->where('id',$id)->first();
+        return $comments->comments;
+    }
+
+    public function course_comment_update(Request $request, $id){
+        $request->validate([
+            'com_edit' => 'required',
+        ]);
+        $data = CourseComments::findOrFail($id)->update([
+            'comments'=>$request->com_edit,         
+            'updated_at' => now()
+        ]);
+  
+        return response()->json($data);
+    
+    }
+
+    public function course_comment_delete(Request $request){
+        $id = $request->id;
+        $comment = CourseComments::find($id);
+        $comment->delete();
+       
+        return response()->json(['success'=>'Comment has been deeted']);
+    }
+
+    public function course_comment_like(Request $request){
+        $user_id = Auth::user()->id;
+        $data = array(
+            'user_id'=>$user_id,
+            'comment_id'=>$request->id,
+            'created_at'=>now()
+        ); 
+        $kurs_comment_like = DB::table('course_comment_like')->get(); 
+        if(count($kurs_comment_like)==0){
+            $result = Course_Comment_Like::insert($data);
+                return response()->json();
+        }else{
+            foreach($kurs_comment_like as $k_like){
+                if($user_id==$k_like->user_id and $request->id==$k_like->comment_id){
+                }else{
+                    $result = Course_Comment_Like::insert($data);
+                    return response()->json();
+                }
+            }
+        }
+        
     }
 
     }

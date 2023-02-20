@@ -129,7 +129,7 @@
           console.log(response);
           var data = ""
           $.each(response.comments, function(key, value){
-            data = data + "<div class='post' id='sid"+value.id+"'>"
+            data = data + "<div class='post' id='cid"+value.id+"'>"
             data = data +   '<div class="user-block">'
             data = data +     '<img class="img-circle img-bordered-sm" src="'+user_url+'/'+value.user.photo+'" alt="user image">'
             data = data +         '<span class="username">'
@@ -138,13 +138,22 @@
             data = data +         '</span>'
             data = data +         '<span class="description">'+value.created_at+'</span>'
             data = data +    '</div>'
+            
+            // COMMENT EDIT
+            
+                data = data +    '<div class="input-group input-group-sm mb-2" style="display:none;" id="com_edit'+value.id+'">'
+                data = data +      '<input type="text" class="form-control form-control-sm" id="com'+value.id+'" placeholder="Reyi yenile">'
+                data = data +      '<div class="input-group-append">'
+                data = data +         '<button type="submit" class="btn btn-danger" onclick="com_updated('+value.id+')">Edit comment</button>'
+                data = data +      '</div>'
+                data = data +     '</div>'
 
                 data = data + '<p>'+value.comments+'</p>'
                 //data = data + '<p>'
                
-                data = data +    '<a href="javascript:void(0);" class="link-black text-sm" onclick="course_c_like('+value.id+')"><i class="far fa-thumbs-up mr-1"></i>5 Like /</a>'
+                data = data +    '<a href="javascript:void(0);" class="link-black text-sm" onclick="course_c_like('+value.id+')"><i class="far fa-thumbs-up mr-1"></i>'+value.course_comment_like.length+' Like /</a>'
                  
-                data = data +    '<a href="javascript:void(0);" class="link-black text-sm share_edit" id="'+value.id+'" onclick="com_edit('+value.id+')"> Edit</a>'
+                data = data +    '<a href="javascript:void(0);" class="link-black text-sm" id="'+value.id+'" onclick="comment_edit('+value.id+')"> Edit</a>'
           })
           $('#activity').html(data);
         }
@@ -168,5 +177,64 @@
         }
       });
     }
+
+    function comment_edit(id){
+      $.ajax({
+           url: "{{route('course.comment.edit')}}/"+id,
+           method:"GET",
+           data:{id:id},
+           cache:false,
+            success: function(response){ 
+            
+                document.querySelector('#com_edit'+id).removeAttribute("style");
+                document.getElementById("com"+id).value = response;
+              
+             }
+          });
+     }
+
+     function com_updated(id){
+      var com_edit = $('#com'+id).val();
+        $.ajax({
+          type: "PUT",
+          dataType:'json', 
+          data:{com_edit:com_edit},
+          url: "{{route('course.com.edit.post')}}/"+id,
+          success:function(response){
+            fetchAllcomments();
+      
+          }
+        });
+     }
+
+     function course_c_delete(id){
+      if(confirm("Silmeye eminsiniz??")){
+      $.ajax({
+           url: "{{route('course.com.delete')}}/"+id,
+           type:"GET",
+           data:{
+             id:id
+           },
+           dataType:'json',
+           cache:false,
+            success: function(response){ 
+              $("#cid"+id).remove();
+              fetchAllcomments();
+           }
+       });
+    }
+     }
+
+     function course_c_like(id){
+      $.ajax({
+        type: "POST",
+        dataType:'json', 
+        data:{id:id},
+        url: "{{route('course.comment.like.post')}}",
+        success:function(response){
+          fetchAllcomments();
+        }
+      });
+     }
 </script>
 @endsection
