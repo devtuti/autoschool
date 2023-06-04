@@ -49,7 +49,7 @@ class LessonController extends Controller
                                 $name = time().'.'.$file->getClientOriginalName();
                                 
                                 $file->move(public_path().'/lessons',$name);
-                                $data=array(
+                                $data=[
                                     'lesson_name'=>$request->lesson_name,
                                     'slug'=>Str::of($request->lesson_name)->slug('-'),
                                     'cat_id'=>$request->category,
@@ -57,11 +57,11 @@ class LessonController extends Controller
                                     'content_text'=>'',
                                     'photo'=>$name,
                                     'created_at'=>now()
-                                ); //dd($data);
+                                ]; //dd($data);die;
                             }
                             
                         }elseif(empty($request->file('photo'))){
-                            $data=array(
+                            $data=[
                                 'lesson_name'=>$request->lesson_name,
                                 'slug'=>Str::of($request->lesson_name)->slug('-'),
                                 'cat_id'=>$request->category,
@@ -69,7 +69,7 @@ class LessonController extends Controller
                                 'content_text'=>$request->con_text,
                                 'photo'=>'',
                                 'created_at'=>now()
-                            ); //dd($data);
+                            ]; //dd($data);
                         }
                         Lesson::insert($data);
                         return redirect()->route('lesson');

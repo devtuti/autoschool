@@ -35,32 +35,34 @@ class GroupUserController extends Controller
 
     function group_user_post(Request $request){
         //dd($request->all());
-        $groups = DB::table('groups')->get();
-        foreach($groups as $group){
-            if($group->status==1){
+        $users = DB::table('group_user')->get();
                 if(Auth::guard('admin')->user()->grade==2){
                     foreach($request->user_name as $item=>$v){
-                        $data=array(
+                        $data=[
                             'group_id'=>$request->group[$item],
                             'user_id'=>$request->user_name[$item],
                             'group_admin'=>Auth::guard('admin')->user()->id,
                             'created_at'=>now()
-                        );
-                        $users = DB::table('group_user')->get();
-                        foreach($users as $user){
-                            if($user->user_id == $request->user_name[$item]){
-                                return redirect()->route('group_insert_user')->withErrors('tekrar istifadeci qrupa daxil etmek olmaz');
-                            }else{
-                                GroupUsers::insert($data);
+                        ]; //dd($data);
+                        
+                        if($users->count()>0){
+                            foreach($users as $user){
+                                if($user->user_id == $request->user_name[$item]){
+                                    return redirect()->route('group_insert_user')->withErrors('tekrar istifadeci qrupa daxil etmek olmaz');
+                                }else{
+                                    GroupUsers::insert($data);
+                                    return redirect()->route('group_users');
+                                }
                             }
+                        }else{
+                            GroupUsers::insert($data);
+                            return redirect()->route('group_users');
                         }
                         
                     }
-                    return redirect()->route('group_users');
+                    
                 }else{return view('back.home');}
-            }
-        }
-        
+          
     }
 
     function group_user_edit($id){

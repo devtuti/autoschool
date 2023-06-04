@@ -17,6 +17,8 @@ use App\Models\Course_Test_User_Answer;
 use App\Models\Course_user_resultats;
 use App\Models\CourseComments;
 use App\Models\Course_Comment_Like;
+use Carbon\Carbon;
+use App\Models\Course_User;
 
 class FrontKursController extends Controller
 {
@@ -67,12 +69,25 @@ class FrontKursController extends Controller
     }
 
     public function kurs_cats($slug){
+        $current_month_courses = Course_User::whereYear('created_at',Carbon::now()->year)
+                                            ->whereMonth('created_at',Carbon::now()->month)
+                                            ->count();
+        $before_1_month_courses = Course_User::whereYear('created_at',Carbon::now()->year)
+                                    ->whereMonth('created_at',Carbon::now()->subMonth(1))
+                                    ->count();
+        $before_2_month_courses = Course_User::whereYear('created_at',Carbon::now()->year)
+                                    ->whereMonth('created_at',Carbon::now()->subMonth(2))
+                                    ->count();
+        /*$before_3_month_courses = Course_User::whereYear('created_at',Carbon::now()->year)
+                                    ->whereMonth('created_at',Carbon::now()->subMonth(3))
+                                    ->count();*/
+        $courseCounts = array($current_month_courses, $before_1_month_courses, $before_2_month_courses);
         $kurs = Kurs::with('admin')->with('kurscategory')->where('slug',$slug)->get();
         $course_like = DB::table('kurs_liked')->get();
         foreach($kurs as $k){
             $kurs_discount =  ($k->price*$k->discount)/100;
             $kurs_price = $k->price-$kurs_discount;
-            return view('front.kurs_content',compact('k','kurs_price','course_like'));
+            return view('front.kurs_content',compact('k','kurs_price','course_like','courseCounts'));
         }
 
     }

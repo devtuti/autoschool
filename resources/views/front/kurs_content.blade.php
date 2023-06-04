@@ -1,14 +1,61 @@
 @extends('layouts.front')
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<?php
+ //echo $current_month = date('M Y', strtotime('-2 month'));
+ $months = array();
+ $count = 0;
+ while($count <= 11){
+  $months[] = date('M Y', strtotime('-'.$count.'month'));
+  $count++;
+ }
+ //echo '<pre>'; print_r($months); die;
+ $dataPoints = array(
+  /*array("y" => $courseCounts[11], "label" => $months[11]),
+  array("y" => $courseCounts[10], "label" => $months[10]),
+  array("y" => $courseCounts[9], "label" => $months[9]),
+  array("y" => $courseCounts[8], "label" => $months[8]),
+  array("y" => $courseCounts[7], "label" => $months[7]),
+  array("y" => $courseCounts[6], "label" => $months[6]),
+  array("y" => $courseCounts[5], "label" => $months[5]),
+  array("y" => $courseCounts[4], "label" => $months[4]),
+  array("y" => $courseCounts[3], "label" => $months[3]),*/
+   array("y" => $courseCounts[2], "label" => $months[2]),
+   array("y" => $courseCounts[1], "label" => $months[1]),
+   array("y" => $courseCounts[0], "label" => $months[0]),
+   
+ );
+  
+ ?>
+<script>
+window.onload = function () {
+ 
+var chart = new CanvasJS.Chart("chartContainer", {
+	title: {
+		text: "Course Report"
+	},
+	axisY: {
+		title: "Number of Course"
+	},
+	data: [{
+		type: "line",
+		dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
+	}]
+});
+chart.render();
+ 
+}
+</script>
+
 @section('title')
     Course page
 @endsection
 @section('css')
+
 @endsection
 
 @section('content')
  <!-- Main Sidebar Container -->
-  
+ 
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -17,7 +64,7 @@
       <div class="content"><br>
       <div class="card card-solid">
 
-      <div class="shadow p-3 mb-5 bg-body-tertiary rounded">{{$k->kurs_name}}</div>
+      <div class="shadow p-3 mb-5 bg-body-tertiary rounded"></div>
 
             <div class="card-body">
                   
@@ -36,22 +83,57 @@
                     </ul>
                     <div class="tab-content" id="myTabContent">
                       <div class="tab-pane fade show active" id="home1" role="tabpanel" aria-labelledby="home-tab">
-                        {{$k->kurs_content}}
-                        <h4>Kursdaki movzular:</h4>
+                      
+
+                      <br>
+                      <div class="card card-outline card-primary">
+              <div class="card-header">
+                <h3 class="card-title">{{$k->kurs_name}}</h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+                <!-- /.card-tools -->
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body" style="display: block;">
+              {{$k->kurs_content}}
+              </div>
+              <div class="card-body" style="display: block;">
+                <h4>Kursdaki movzular:</h4>
                         <ul class="list-group">
                         @foreach($k->kurscategory as $kcat)
                                 <li class="list-group-item"><a href="{{route('course.lessons')}}/{{$kcat->id}}">{{$kcat->kcat_name}}</a></li>
                         @endforeach
                             
-                            </ul>
-                        <h4>Qiymeti: {{$k->price}} azn</h4>
-                        <h5>Endirimi: {{$k->discount}} %</h5>
-                        <h5>Yekun qiymet: {{$kurs_price}} azn</h5>
-                        <p class="text-start">Teacher: {{$k->admin->name_familya}}</p>
-                        <div id="like_count">
-                          <a href="javascript:void(0);" class="link-black text-sm" onclick="kurs_like('{{$k->id}}')"><i class="far fa-thumbs-up mr-1"></i>{{count($course_like)}} Like</a>
-                        </div>
-                      </div>
+                        </ul>
+              </div>
+
+              <div class="card-body" style="display: block;">
+                <ul>
+                  <li>Qiymeti: {{$k->price}} azn</li>
+                  <li>Endirimi: {{$k->discount}} %</li>
+                  <li>Yekun qiymet: {{$kurs_price}} azn</li>
+                  
+                </ul>
+
+              </div>
+            
+              <div class="card-body" style="display: block;">
+                <p class="text-start">Teacher: {{$k->admin->name_familya}}</p>
+              </div>
+              <div class="card-body" style="display: block;">
+                <div id="like_count">
+                    <a href="javascript:void(0);" class="link-black text-sm" onclick="kurs_like('{{$k->id}}')"><i class="far fa-thumbs-up mr-1"></i>{{count($course_like)}} Like</a>
+                </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+                          
+                        
+          </div>
                       
                       <div class="tab-pane fade" id="profile1" role="tabpanel" aria-labelledby="profile-tab">
                       <br/><div id="activity"></div><br/>
@@ -65,8 +147,9 @@
                         </div>
                       </div>
                       <div class="tab-pane fade" id="contact1" role="tabpanel" aria-labelledby="contact-tab">
-                        xxFood truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo
-                            booth letterpress, commodo enim craft beer mlkshk 
+                                        
+                        <div id="chartContainer" style="height: 400px; width: 100%;"></div>
+                     
                       </div>
                     </div><!-- tab-content -->
 
@@ -83,6 +166,8 @@
 @endsection
 
 @section('js')
+<!-- ChartJS -->
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 <script>
   let user_url =  "{{asset('users/')}}";
   $.ajaxSetup({
